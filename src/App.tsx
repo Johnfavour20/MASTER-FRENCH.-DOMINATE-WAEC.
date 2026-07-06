@@ -72,10 +72,11 @@ export default function App() {
           </div>
         )}
 
-        {currentView === "signup" && (
+        {(currentView === "signup" || currentView === "login") && (
           <div className="w-full">
             <SignupView 
               setCurrentView={setCurrentView}
+              initialMode={currentView === "login" ? "login" : "signup"}
               onSignupSuccess={(name) => {
                 setUserXP(prev => prev + 150);
                 setCurrentView("dashboard");
@@ -126,10 +127,12 @@ export default function App() {
       </main>
 
       {/* Persistent Beautiful Footer */}
-      <Footer 
-        setCurrentView={setCurrentView} 
-        openSignupModal={() => setCurrentView("signup")} 
-      />
+      {currentView !== "signup" && currentView !== "login" && (
+        <Footer 
+          setCurrentView={setCurrentView} 
+          openSignupModal={() => setCurrentView("signup")} 
+        />
+      )}
 
     </div>
   );

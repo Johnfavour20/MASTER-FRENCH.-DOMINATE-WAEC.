@@ -12,23 +12,31 @@ import {
 interface SignupViewProps {
   setCurrentView: (view: string) => void;
   onSignupSuccess: (name: string) => void;
+  initialMode?: "signup" | "login";
 }
 
-export default function SignupView({ setCurrentView, onSignupSuccess }: SignupViewProps) {
+export default function SignupView({ setCurrentView, onSignupSuccess, initialMode }: SignupViewProps) {
+  const [mode, setMode] = useState<"signup" | "login">(initialMode || "signup");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
-    country: "Côte d'Ivoire",
+    country: "🇳🇬 Nigeria",
     school: "",
-    classe: "Terminale (S/L/ES)",
+    classe: "SS3 — Passage du WAEC cette année",
     password: "",
     confirmPassword: "",
     agreeToTerms: false
   });
 
   const [isSuccess, setIsSuccess] = useState(false);
+
+  React.useEffect(() => {
+    if (initialMode) {
+      setMode(initialMode);
+    }
+  }, [initialMode]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -67,6 +75,27 @@ export default function SignupView({ setCurrentView, onSignupSuccess }: SignupVi
     );
   }
 
+  const getStrengthData = () => {
+    const val = formData.password;
+    if (val.length === 0) {
+      return { width: "0%", background: "transparent", text: "", color: "" };
+    } else if (val.length < 6) {
+      return { width: "33%", background: "#E63946", text: "Faible", color: "#E63946" };
+    } else if (val.length < 8) {
+      return { width: "66%", background: "#F97316", text: "Moyen", color: "#F97316" };
+    } else {
+      const hasLetter = /[a-zA-Z]/.test(val);
+      const hasNumber = /[0-9]/.test(val);
+      if (hasLetter && hasNumber) {
+        return { width: "100%", background: "#2DC653", text: "Fort", color: "#2DC653" };
+      } else {
+        return { width: "66%", background: "#F97316", text: "Moyen", color: "#F97316" };
+      }
+    }
+  };
+
+  const strength = getStrengthData();
+
   return (
     <div className="w-full min-h-[calc(100vh-80px)] flex flex-col lg:flex-row">
       
@@ -77,23 +106,29 @@ export default function SignupView({ setCurrentView, onSignupSuccess }: SignupVi
         <div className="bg-white w-full max-w-[560px] rounded-3xl p-6 md:p-8 shadow-xl border border-rose-100/40 relative">
           
           {/* Top Badge */}
-          <div className="inline-flex items-center gap-2 bg-[#e6ebf4] text-[#1e3a8a] text-xs font-bold px-3 py-1.5 rounded-full mb-6">
-            <Compass className="w-4 h-4 text-brand-blue" />
-            <span>Inscription pour Cohorte 1 — Commence dans 29 jours</span>
-          </div>
+          {mode === "signup" && (
+            <div className="inline-flex items-center gap-2 bg-[#e6ebf4] text-[#1e3a8a] text-xs font-bold px-3 py-1.5 rounded-full mb-6">
+              <Compass className="w-4 h-4 text-brand-blue" />
+              <span>Inscription pour Cohorte 1 — Commence dans 29 jours</span>
+            </div>
+          )}
 
           {/* Heading */}
           <h2 className="font-display text-3xl font-extrabold text-slate-900 tracking-tight mb-1">
-            Commençons.
+            {mode === "signup" ? "Commençons." : "Bon retour. 🪶"}
           </h2>
           <p className="text-slate-500 text-sm mb-6 font-medium">
-            Rejoignez l'élite académique et préparez-vous pour le succès.
+            {mode === "signup" 
+              ? "Rejoignez l'élite académique et préparez-vous pour le succès."
+              : "Connectez-vous pour continuer votre parcours en français."
+            }
           </p>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            
-            {/* Grid 1: Nom complet & Email */}
+            {mode === "signup" ? (
+              <>
+                {/* Grid 1: Nom complet & Email */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold uppercase text-slate-400 block mb-1.5 font-mono">
@@ -153,34 +188,31 @@ export default function SignupView({ setCurrentView, onSignupSuccess }: SignupVi
                   onChange={handleInputChange}
                   className="w-full bg-slate-50 border border-slate-100 focus:border-brand-blue focus:bg-white focus:outline-hidden rounded-xl px-4 py-3 text-xs md:text-sm font-semibold transition-all cursor-pointer"
                 >
-                  <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
-                  <option value="Nigeria">🇳🇬 Nigeria</option>
-                  <option value="Ghana">🇬🇭 Ghana</option>
-                  <option value="Kenya">🇰🇪 Kenya</option>
+                  <option value="🇳🇬 Nigeria">🇳🇬 Nigeria</option>
+                  <option value="🇬🇭 Ghana">🇬🇭 Ghana</option>
+                  <option value="🇸🇱 Sierra Leone">🇸🇱 Sierra Leone</option>
+                  <option value="🇬🇲 Gambie">🇬🇲 Gambie</option>
+                  <option value="🇱🇷 Liberia">🇱🇷 Liberia</option>
+                  <option value="🌍 Autre pays africain">🌍 Autre pays africain</option>
                 </select>
               </div>
             </div>
 
             {/* Grid 3: École & Classe */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="relative">
+              <div>
                 <label className="text-xs font-bold uppercase text-slate-400 block mb-1.5 font-mono">
                   École
                 </label>
-                <div className="relative">
-                  <input
-                    required
-                    type="text"
-                    name="school"
-                    value={formData.school}
-                    onChange={handleInputChange}
-                    placeholder="Nom de votre établissement"
-                    className="w-full bg-slate-50 border border-slate-100 focus:border-brand-blue focus:bg-white focus:outline-hidden rounded-xl pl-4 pr-10 py-3 text-xs md:text-sm font-semibold transition-all"
-                  />
-                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                    🏢
-                  </div>
-                </div>
+                <input
+                  required
+                  type="text"
+                  name="school"
+                  value={formData.school}
+                  onChange={handleInputChange}
+                  placeholder="Nom de votre établissement"
+                  className="w-full bg-slate-50 border border-slate-100 focus:border-brand-blue focus:bg-white focus:outline-hidden rounded-xl px-4 py-3 text-xs md:text-sm font-semibold transition-all"
+                />
               </div>
 
               <div>
@@ -193,10 +225,11 @@ export default function SignupView({ setCurrentView, onSignupSuccess }: SignupVi
                   onChange={handleInputChange}
                   className="w-full bg-slate-50 border border-slate-100 focus:border-brand-blue focus:bg-white focus:outline-hidden rounded-xl px-4 py-3 text-xs md:text-sm font-semibold transition-all cursor-pointer"
                 >
-                  <option value="Terminale (S/L/ES)">Terminale (S/L/ES)</option>
-                  <option value="Première">Première</option>
-                  <option value="Seconde">Seconde</option>
-                  <option value="Autre">Autre</option>
+                  <option value="SS1 — Préparation anticipée">SS1 — Préparation anticipée</option>
+                  <option value="SS2 — Préparation anticipée">SS2 — Préparation anticipée</option>
+                  <option value="SS3 — Passage du WAEC cette année">SS3 — Passage du WAEC cette année</option>
+                  <option value="Déjà passé le WAEC">Déjà passé le WAEC</option>
+                  <option value="Étudiant universitaire">Étudiant universitaire</option>
                 </select>
               </div>
             </div>
@@ -225,6 +258,30 @@ export default function SignupView({ setCurrentView, onSignupSuccess }: SignupVi
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                <div style={{ width: "100%", height: "4px", background: "#E5E7EB", borderRadius: "2px", marginTop: "6px" }}>
+                  <div 
+                    id="strength-bar" 
+                    style={{ 
+                      height: "100%", 
+                      width: strength.width, 
+                      background: strength.background, 
+                      borderRadius: "2px", 
+                      transition: "all 0.3s ease" 
+                    }}
+                  ></div>
+                </div>
+                <span 
+                  id="strength-label"
+                  style={{ 
+                    fontSize: "12px", 
+                    fontFamily: "'Inter', sans-serif", 
+                    marginTop: "4px", 
+                    display: "block",
+                    color: strength.color
+                  }}
+                >
+                  {strength.text}
+                </span>
               </div>
 
               <div>
@@ -267,6 +324,82 @@ export default function SignupView({ setCurrentView, onSignupSuccess }: SignupVi
               Créer Mon Compte
               <ArrowRight className="w-4 h-4" />
             </button>
+              </>
+            ) : (
+              <>
+                {/* Email Field */}
+                <div>
+                  <label className="text-xs font-bold uppercase text-slate-400 block mb-1.5 font-mono">
+                    ADRESSE EMAIL
+                  </label>
+                  <input
+                    required
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Entrez votre email"
+                    className="w-full bg-slate-50 border border-slate-100 focus:border-brand-blue focus:bg-white focus:outline-hidden rounded-xl px-4 py-3 text-xs md:text-sm font-semibold transition-all"
+                  />
+                </div>
+
+                {/* Password Field */}
+                <div>
+                  <label className="text-xs font-bold uppercase text-slate-400 block mb-1.5 font-mono">
+                    MOT DE PASSE
+                  </label>
+                  <div className="relative">
+                    <input
+                      required
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="Entrez votre mot de passe"
+                      className="w-full bg-slate-50 border border-slate-100 focus:border-brand-blue focus:bg-white focus:outline-hidden rounded-xl pl-4 pr-10 py-3 text-xs md:text-sm font-semibold transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Checkbox / Forgot row */}
+                <div className="flex items-center justify-between pt-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="rememberMe"
+                      type="checkbox"
+                      className="w-4 h-4 rounded-sm border-slate-200 text-brand-blue focus:ring-brand-blue cursor-pointer"
+                    />
+                    <label htmlFor="rememberMe" className="text-xs text-slate-600 font-medium select-none cursor-pointer">
+                      Se souvenir de moi
+                    </label>
+                  </div>
+                  <button
+                    type="button"
+                    className="text-xs font-medium underline cursor-pointer hover:text-brand-blue-light transition-all"
+                    style={{ color: "#002B5B" }}
+                    onClick={() => alert("Fonctionnalité de réinitialisation de mot de passe à venir !")}
+                  >
+                    Mot de passe oublié?
+                  </button>
+                </div>
+
+                {/* Submit button */}
+                <button
+                  type="submit"
+                  className="w-full bg-brand-blue hover:bg-brand-blue-light text-white font-bold py-4 px-6 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 mt-4 cursor-pointer text-sm font-sans"
+                >
+                  Se connecter
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </>
+            )}
 
           </form>
 
@@ -282,20 +415,85 @@ export default function SignupView({ setCurrentView, onSignupSuccess }: SignupVi
             onClick={() => {
               onSignupSuccess("User (Google)");
             }}
-            className="w-full bg-white hover:bg-slate-50 text-slate-700 font-bold py-3.5 px-6 rounded-full border border-slate-200 shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all text-xs"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
+              width: "100%",
+              height: "48px",
+              background: "white",
+              border: "1px solid #E5E7EB",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontFamily: "'Inter',sans-serif",
+              fontSize: "16px",
+              color: "#0D1117",
+              fontWeight: 500,
+            }}
           >
-            🗺️ Continuer avec Google
+            <svg width="20" height="20" viewBox="0 0 18 18"
+            xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4"
+              d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6
+              2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88
+              c0-.57-.05-.66-.15-1.18z"/>
+              <path fill="#34A853"
+              d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2
+              a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07
+              A8 8 0 0 0 8.98 17z"/>
+              <path fill="#FBBC05"
+              d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41
+              H1.83a8 8 0 0 0 0 7.18z"/>
+              <path fill="#EA4335"
+              d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3
+              A8 8 0 0 0 1.83 5.4L4.5 7.49
+              a4.77 4.77 0 0 1 4.48-3.31z"/>
+            </svg>
+            Continuer avec Google
           </button>
 
           {/* Footer sign-in switch link */}
           <div className="text-center mt-6 text-xs text-slate-500 font-medium">
-            Vous avez déjà un compte?{" "}
-            <button
-              onClick={() => setCurrentView("dashboard")}
-              className="text-brand-blue font-bold underline hover:text-brand-blue-light cursor-pointer"
-            >
-              Se connecter
-            </button>
+            {mode === "signup" ? (
+              <>
+                Vous avez déjà un compte?{" "}
+                <button
+                  type="button"
+                  onClick={() => setMode("login")}
+                  style={{
+                    color: '#002B5B',
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                    background: 'none',
+                    border: 'none',
+                    padding: 0
+                  }}
+                >
+                  Se connecter
+                </button>
+              </>
+            ) : (
+              <>
+                Pas encore de compte?{" "}
+                <button
+                  type="button"
+                  onClick={() => setMode("signup")}
+                  style={{
+                    color: '#002B5B',
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                    background: 'none',
+                    border: 'none',
+                    padding: 0
+                  }}
+                >
+                  Rejoindre Cohorte 1
+                </button>
+              </>
+            )}
           </div>
 
         </div>

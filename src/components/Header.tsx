@@ -105,7 +105,7 @@ export default function Header({ currentView, setCurrentView, openSignupModal }:
         <div className="flex items-center gap-3">
           <button
             id="btn-login"
-            onClick={openSignupModal}
+            onClick={() => setCurrentView("login")}
             className="flex items-center gap-1.5 text-slate-700 hover:text-brand-blue font-medium text-sm px-3 md:px-4 py-2 rounded-lg transition-all hover:bg-slate-50"
           >
             <LogIn className="w-4 h-4" />
