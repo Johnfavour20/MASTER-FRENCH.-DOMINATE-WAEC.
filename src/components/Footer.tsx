@@ -43,7 +43,7 @@ export default function Footer({ setCurrentView, openSignupModal }: FooterProps)
           <h4 className="font-display font-bold text-brand-yellow mb-4 uppercase tracking-wider text-xs">Apprendre</h4>
           <ul className="space-y-2.5 text-slate-300">
             <li><button onClick={() => setCurrentView("quiz")} className="hover:text-white transition-all">Syllabus WAEC</button></li>
-            <li><button onClick={() => setCurrentView("quiz")} className="hover:text-white transition-all">Le Blitz</button></li>
+            <li><button onClick={() => setCurrentView("blitz")} className="hover:text-white transition-all">Le Blitz</button></li>
             <li><button onClick={() => setCurrentView("chat")} className="hover:text-white transition-all">AI Tutor</button></li>
             <li><button onClick={() => setCurrentView("validation")} className="hover:text-white transition-all">Vocabulaire</button></li>
           </ul>
@@ -91,11 +91,7 @@ export default function Footer({ setCurrentView, openSignupModal }: FooterProps)
           <span className="font-bold text-white text-sm">La Plume</span>
         </div>
 
-        <div className="flex items-center gap-1 font-medium">
-          <span>Built in Africa with</span>
-          <Heart className="w-3.5 h-3.5 text-brand-coral fill-brand-coral" />
-          <span>& Passion</span>
-        </div>
+
 
         <div>
           <span>&copy; {new Date().getFullYear()} La Plume. Tous droits réservés.</span>

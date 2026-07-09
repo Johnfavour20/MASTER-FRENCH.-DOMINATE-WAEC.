@@ -17,6 +17,7 @@
   --animate-float-slow: float-slow 6s ease-in-out infinite;
   --animate-float-medium: float-medium 5s ease-in-out infinite;
   --animate-float-fast: float-fast 4s ease-in-out infinite;
+  --animate-marquee: marquee 25s linear infinite;
 }
 
 @keyframes float-slow {
@@ -42,6 +43,11 @@
 @keyframes slide-up {
   from { transform: translateY(12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 /* Base resets & customization */

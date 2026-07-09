@@ -15,11 +15,18 @@ import FAQ from "./components/FAQ";
 import Pricing from "./components/Pricing";
 import Footer from "./components/Footer";
 import SignupView from "./components/SignupView";
+import OnboardingView from "./components/OnboardingView";
+import PlanSelectionView from "./components/PlanSelectionView";
+import ParcoursView from "./components/ParcoursView";
+import LessonViewer from "./components/LessonViewer";
+import BlitzArena from "./components/BlitzArena";
 
 export default function App() {
   const [currentView, setCurrentView] = useState<string>("landing");
-  const [userXP, setUserXP] = useState<number>(1220); // Initial XP matches screenshot
+  const [userXP, setUserXP] = useState<number>(680); // Initial XP matches screenshot
   const [userStreak, setUserStreak] = useState<number>(12); // Initial streak matches screenshot
+  const [registeredName, setRegisteredName] = useState<string>("Johnfavour");
+  const [isPremium, setIsPremium] = useState<boolean>(false);
 
   const handleGainXP = (amount: number) => {
     setUserXP(prev => prev + amount);
@@ -33,11 +40,13 @@ export default function App() {
     <div className="min-h-screen bg-[#fcfcfd] flex flex-col font-sans selection:bg-brand-blue selection:text-white">
       
       {/* Navigation Header */}
-      <Header 
-        currentView={currentView} 
-        setCurrentView={setCurrentView} 
-        openSignupModal={() => setCurrentView("signup")}
-      />
+      {currentView !== "onboarding" && currentView !== "dashboard" && currentView !== "parcours" && currentView !== "lesson-viewer" && currentView !== "blitz" && (
+        <Header 
+          currentView={currentView} 
+          setCurrentView={setCurrentView} 
+          openSignupModal={() => setCurrentView("signup")}
+        />
+      )}
 
       {/* Main Content Sections */}
       <main className="flex-grow w-full">
@@ -78,19 +87,72 @@ export default function App() {
               setCurrentView={setCurrentView}
               initialMode={currentView === "login" ? "login" : "signup"}
               onSignupSuccess={(name) => {
+                setRegisteredName(name);
                 setUserXP(prev => prev + 150);
-                setCurrentView("dashboard");
+                setCurrentView("plan-selection");
               }}
             />
           </div>
         )}
 
+        {currentView === "plan-selection" && (
+          <div className="w-full">
+            <PlanSelectionView 
+              userFullName={registeredName}
+              onSelectFreeTrial={() => {
+                setIsPremium(false);
+                setCurrentView("onboarding");
+              }}
+              onSelectPremiumSuccess={() => {
+                setIsPremium(true);
+                setCurrentView("onboarding");
+              }}
+            />
+          </div>
+        )}
+
+        {currentView === "onboarding" && (
+          <div className="w-full">
+            <OnboardingView 
+              onSignupSuccess={(name) => {
+                setRegisteredName(name);
+                setCurrentView("dashboard");
+              }}
+              userFullName={registeredName}
+            />
+          </div>
+        )}
+
         {currentView === "dashboard" && (
-          <div className="w-full max-w-4xl mx-auto px-4 py-8">
+          <div className="w-full">
             <DashboardWidget 
               userXP={userXP} 
               userStreak={userStreak} 
               setCurrentView={setCurrentView}
+              isPremium={isPremium}
+              userFullName={registeredName}
+            />
+          </div>
+        )}
+
+        {currentView === "parcours" && (
+          <div className="w-full">
+            <ParcoursView 
+              userXP={userXP} 
+              userStreak={userStreak} 
+              setCurrentView={setCurrentView}
+              isPremium={isPremium}
+            />
+          </div>
+        )}
+
+        {currentView === "lesson-viewer" && (
+          <div className="w-full animate-fade-in">
+            <LessonViewer 
+              userXP={userXP} 
+              userStreak={userStreak} 
+              setCurrentView={setCurrentView}
+              onGainXP={handleGainXP}
             />
           </div>
         )}
@@ -119,6 +181,18 @@ export default function App() {
           </div>
         )}
 
+        {currentView === "blitz" && (
+          <div className="w-full">
+            <BlitzArena 
+              userXP={userXP} 
+              userStreak={userStreak} 
+              setCurrentView={setCurrentView}
+              onGainXP={handleGainXP}
+              isPremium={isPremium}
+            />
+          </div>
+        )}
+
         {currentView === "chat" && (
           <div className="w-full">
             <AiTutorChat />
@@ -127,7 +201,7 @@ export default function App() {
       </main>
 
       {/* Persistent Beautiful Footer */}
-      {currentView !== "signup" && currentView !== "login" && (
+      {currentView !== "signup" && currentView !== "login" && currentView !== "onboarding" && currentView !== "plan-selection" && currentView !== "parcours" && currentView !== "lesson-viewer" && currentView !== "dashboard" && currentView !== "blitz" && (
         <Footer 
           setCurrentView={setCurrentView} 
           openSignupModal={() => setCurrentView("signup")} 

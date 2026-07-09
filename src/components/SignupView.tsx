@@ -6,7 +6,8 @@
 import React, { useState } from "react";
 import { 
   GraduationCap, ArrowRight, Eye, EyeOff, Sparkles, Compass, 
-  MapPin, BookOpen, Target, Check, Trophy, Heart, Shield, Flame
+  MapPin, BookOpen, Target, Check, Trophy, Heart, Shield, Flame,
+  Mail, Lightbulb
 } from "lucide-react";
 
 interface SignupViewProps {
@@ -31,12 +32,36 @@ export default function SignupView({ setCurrentView, onSignupSuccess, initialMod
   });
 
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [timer, setTimer] = useState(60);
+  const [canResend, setCanResend] = useState(false);
+  const [resendNotification, setResendNotification] = useState(false);
 
   React.useEffect(() => {
     if (initialMode) {
       setMode(initialMode);
     }
   }, [initialMode]);
+
+  React.useEffect(() => {
+    let interval: any;
+    if (showVerification && timer > 0) {
+      setCanResend(false);
+      interval = setInterval(() => {
+        setTimer(prev => {
+          if (prev <= 1) {
+            setCanResend(true);
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else if (timer === 0) {
+      setCanResend(true);
+    }
+    return () => clearInterval(interval);
+  }, [showVerification, timer]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -50,10 +75,15 @@ export default function SignupView({ setCurrentView, onSignupSuccess, initialMod
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSuccess(true);
-    setTimeout(() => {
-      onSignupSuccess(formData.fullName || "Amara");
-    }, 2200);
+    if (mode === "signup") {
+      setShowVerification(true);
+      setTimer(60);
+    } else {
+      setIsSuccess(true);
+      setTimeout(() => {
+        onSignupSuccess(formData.fullName || "Amara");
+      }, 1800);
+    }
   };
 
   if (isSuccess) {
@@ -70,6 +100,134 @@ export default function SignupView({ setCurrentView, onSignupSuccess, initialMod
           <div className="text-xs text-brand-blue-light bg-slate-50 px-4 py-2 rounded-xl font-bold font-mono">
             Redirection vers votre tableau de bord...
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showVerification && !isSuccess) {
+    const formattedTimer = `00:${String(timer).padStart(2, "0")}`;
+    const userEmail = formData.email || "igboechejohn@gmail.com";
+
+    const handleResend = () => {
+      if (!canResend) return;
+      setTimer(60);
+      setCanResend(false);
+      setResendNotification(true);
+      setTimeout(() => setResendNotification(false), 4000);
+    };
+
+    const handleSimulateVerify = () => {
+      setIsSuccess(true);
+      setTimeout(() => {
+        onSignupSuccess(formData.fullName || "Amara");
+      }, 2000);
+    };
+
+    return (
+      <div className="w-full min-h-[calc(100vh-80px)] bg-[#fef2f0] flex flex-col items-center justify-center p-4">
+        {resendNotification && (
+          <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg font-bold text-xs md:text-sm flex items-center gap-2 animate-bounce z-50">
+            <Check className="w-4 h-4 stroke-[3]" />
+            Un nouvel email de vérification a été envoyé !
+          </div>
+        )}
+
+        {/* Main Verification Card */}
+        <div className="bg-white w-full max-w-[560px] rounded-3xl p-6 md:p-8 shadow-xl border border-rose-100/40 relative text-center flex flex-col items-center py-10 md:py-12 animate-slide-up">
+          
+          {/* Closed Envelope Icon */}
+          <div className="bg-slate-50 border border-slate-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6 shadow-xs">
+            <Mail className="w-8 h-8 text-brand-blue" />
+          </div>
+
+          {/* Heading */}
+          <h2 className="font-display text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+            Vérifiez votre boîte mail 📬
+          </h2>
+          
+          <p className="text-slate-600 text-xs md:text-sm mb-1 font-medium">
+            Nous avons envoyé un lien de vérification à
+          </p>
+          <p className="text-brand-blue text-sm md:text-base font-bold mb-4 font-mono break-all px-2">
+            {userEmail}
+          </p>
+          
+          <p className="text-slate-500 text-[11px] md:text-xs max-w-sm leading-relaxed mb-6">
+            Cliquez sur le lien dans votre email pour activer votre compte La Plume et rejoindre la Cohorte 1.
+          </p>
+
+          {/* Action Buttons */}
+          <div className="w-full space-y-3">
+            <a
+              href="https://mail.google.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleSimulateVerify} // Automatically verify on clicking Gmail link to keep the flow extremely friendly!
+              className="w-full bg-brand-blue hover:bg-[#001f42] text-white font-bold py-3.5 px-6 rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer text-xs md:text-sm font-sans"
+            >
+              Ouvrir Gmail
+              <ArrowRight className="w-4 h-4" />
+            </a>
+
+            <button
+              type="button"
+              disabled={!canResend}
+              onClick={handleResend}
+              className={`w-full py-3.5 px-6 rounded-full font-bold text-xs md:text-sm transition-all border ${
+                canResend
+                  ? "bg-white border-brand-blue text-brand-blue hover:bg-slate-50 cursor-pointer"
+                  : "bg-slate-50 border-slate-100 text-slate-400 cursor-not-allowed"
+              }`}
+            >
+              Renvoyer l'email {!canResend && `(${formattedTimer})`}
+            </button>
+          </div>
+
+          {/* Alert Card / Spam Info */}
+          <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-left text-[11px] md:text-xs text-slate-600 mt-6 flex items-start gap-2.5 w-full">
+            <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
+              Vous ne trouvez pas l'email? Vérifiez votre dossier spam. L'email provient de <strong className="text-brand-blue">hello@laplume.africa</strong>
+            </p>
+          </div>
+
+          {/* Wrong Email / Return to signup Link */}
+          <button
+            type="button"
+            onClick={() => {
+              setShowVerification(false);
+            }}
+            className="text-xs md:text-sm font-bold underline transition-all mt-6 cursor-pointer block"
+            style={{ color: "#002B5B" }}
+          >
+            Mauvais email? Retourner à l'inscription
+          </button>
+
+          {/* Live countdown helper text */}
+          <div className="text-[10px] md:text-xs text-slate-400 mt-4">
+            {timer > 0 ? (
+              <span>Vous pouvez renvoyer l'email dans <strong className="font-mono text-brand-blue">{formattedTimer}</strong> secondes</span>
+            ) : (
+              <span className="text-emerald-600 font-bold">Vous pouvez maintenant renvoyer l'email.</span>
+            )}
+          </div>
+
+          {/* Interactive bypass for prototype convenience */}
+          <div className="mt-8 pt-4 border-t border-slate-100 w-full flex flex-col items-center">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 font-mono">
+              Mode Démo Interactif
+            </span>
+            <button
+              type="button"
+              onClick={handleSimulateVerify}
+              className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 fill-white/10" />
+              Simuler la validation de l'email
+            </button>
+          </div>
+
         </div>
       </div>
     );

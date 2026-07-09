@@ -53,6 +53,11 @@ export default function AiValidationWidget({ onGainXP }: AiValidationWidgetProps
         throw new Error("Validation request failed");
       }
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Expected JSON response but received non-JSON payload");
+      }
+
       const data = await response.json();
       setResult(data);
 

@@ -348,52 +348,71 @@ export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
           <span className="text-[11px] font-mono font-extrabold text-slate-400 uppercase tracking-widest block mb-3">COHORT 1 STATUS : COHORT STARTS IN</span>
           
           {/* Countdown Cards Container */}
-          <div className="flex justify-center items-center gap-4 md:gap-6 max-w-lg mx-auto mb-10">
+          <div className="flex justify-center items-center gap-2 md:gap-6 max-w-lg mx-auto mb-10 px-2">
             {/* Days Card */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-lg flex-1 min-w-[70px] md:min-w-[90px] flex flex-col items-center">
-              <span className="text-3xl md:text-5xl font-black text-brand-blue tracking-tight font-mono">{String(timeLeft.days).padStart(2, "0")}</span>
-              <span className="text-[10px] text-slate-400 uppercase font-extrabold tracking-wider mt-1">days</span>
+            <div className="bg-white rounded-2xl border border-slate-100 p-3 md:p-5 shadow-lg flex-1 min-w-[55px] md:min-w-[90px] flex flex-col items-center">
+              <span className="text-xl xs:text-3xl md:text-5xl font-black text-brand-blue tracking-tight font-mono">{String(timeLeft.days).padStart(2, "0")}</span>
+              <span className="text-[8px] md:text-[10px] text-slate-400 uppercase font-extrabold tracking-wider mt-1">days</span>
             </div>
             
             {/* Hours Card */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-lg flex-1 min-w-[70px] md:min-w-[90px] flex flex-col items-center">
-              <span className="text-3xl md:text-5xl font-black text-brand-blue tracking-tight font-mono">{String(timeLeft.hours).padStart(2, "0")}</span>
-              <span className="text-[10px] text-slate-400 uppercase font-extrabold tracking-wider mt-1">hours</span>
+            <div className="bg-white rounded-2xl border border-slate-100 p-3 md:p-5 shadow-lg flex-1 min-w-[55px] md:min-w-[90px] flex flex-col items-center">
+              <span className="text-xl xs:text-3xl md:text-5xl font-black text-brand-blue tracking-tight font-mono">{String(timeLeft.hours).padStart(2, "0")}</span>
+              <span className="text-[8px] md:text-[10px] text-slate-400 uppercase font-extrabold tracking-wider mt-1">hours</span>
             </div>
 
             {/* Minutes Card */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-lg flex-1 min-w-[70px] md:min-w-[90px] flex flex-col items-center">
-              <span className="text-3xl md:text-5xl font-black text-brand-blue tracking-tight font-mono">{String(timeLeft.minutes).padStart(2, "0")}</span>
-              <span className="text-[10px] text-slate-400 uppercase font-extrabold tracking-wider mt-1">mins</span>
+            <div className="bg-white rounded-2xl border border-slate-100 p-3 md:p-5 shadow-lg flex-1 min-w-[55px] md:min-w-[90px] flex flex-col items-center">
+              <span className="text-xl xs:text-3xl md:text-5xl font-black text-brand-blue tracking-tight font-mono">{String(timeLeft.minutes).padStart(2, "0")}</span>
+              <span className="text-[8px] md:text-[10px] text-slate-400 uppercase font-extrabold tracking-wider mt-1">mins</span>
             </div>
 
             {/* Seconds Card */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-lg flex-1 min-w-[70px] md:min-w-[90px] flex flex-col items-center">
-              <span className="text-3xl md:text-5xl font-black text-brand-blue tracking-tight font-mono text-brand-coral">{String(timeLeft.seconds).padStart(2, "0")}</span>
-              <span className="text-[10px] text-brand-coral uppercase font-extrabold tracking-wider mt-1">secs</span>
+            <div className="bg-white rounded-2xl border border-slate-100 p-3 md:p-5 shadow-lg flex-1 min-w-[55px] md:min-w-[90px] flex flex-col items-center">
+              <span className="text-xl xs:text-3xl md:text-5xl font-black text-brand-blue tracking-tight font-mono text-brand-coral">{String(timeLeft.seconds).padStart(2, "0")}</span>
+              <span className="text-[8px] md:text-[10px] text-brand-coral uppercase font-extrabold tracking-wider mt-1">secs</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Flag Section (Social Proof Countries) */}
-      <section className="w-full py-8 border-y border-slate-100 bg-slate-50/30">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-center sm:text-left">
-          <span className="text-xs uppercase font-mono font-bold tracking-widest text-slate-400">
+      {/* Flag Section (Social Proof Countries with Infinite Marquee) */}
+      <section className="w-full py-8 border-y border-slate-100 bg-slate-50/30 overflow-hidden">
+        <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
+          <span className="text-xs uppercase font-mono font-bold tracking-widest text-slate-400 shrink-0 text-center md:text-left">
             REGISTERED STUDENTS FROM:
           </span>
-          <div className="flex flex-wrap justify-center items-center gap-6">
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-xs">
-              <span className="text-lg">🇳🇬</span>
-              <span className="text-xs font-bold text-slate-600">Nigeria</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-xs">
-              <span className="text-lg">🇬🇭</span>
-              <span className="text-xs font-bold text-slate-600">Ghana</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-xs">
-              <span className="text-lg">🇰🇪</span>
-              <span className="text-xs font-bold text-slate-600">Kenya</span>
+          <div className="relative flex overflow-hidden w-full max-w-3xl py-1">
+            {/* Left and Right gradient fades for premium look */}
+            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-slate-50/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-slate-50/80 to-transparent z-10 pointer-events-none" />
+            
+            <div className="animate-marquee flex whitespace-nowrap py-1">
+              {[
+                { flag: "🇳🇬", name: "Nigeria" },
+                { flag: "🇬🇭", name: "Ghana" },
+                { flag: "🇰🇪", name: "Kenya" },
+                { flag: "🇸🇱", name: "Sierra Leone" },
+                { flag: "🇱🇷", name: "Liberia" }
+              ].map((c, idx) => (
+                <div key={`c1-${idx}`} className="flex items-center gap-2 bg-white px-4.5 py-2.5 rounded-xl border border-slate-100 shadow-xs mr-6 shrink-0 transition-transform hover:scale-105 duration-200">
+                  <span className="text-xl">{c.flag}</span>
+                  <span className="text-xs font-bold text-slate-600">{c.name}</span>
+                </div>
+              ))}
+              {/* Duplicate set for seamless infinite loop */}
+              {[
+                { flag: "🇳🇬", name: "Nigeria" },
+                { flag: "🇬🇭", name: "Ghana" },
+                { flag: "🇰🇪", name: "Kenya" },
+                { flag: "🇸🇱", name: "Sierra Leone" },
+                { flag: "🇱🇷", name: "Liberia" }
+              ].map((c, idx) => (
+                <div key={`c2-${idx}`} className="flex items-center gap-2 bg-white px-4.5 py-2.5 rounded-xl border border-slate-100 shadow-xs mr-6 shrink-0 transition-transform hover:scale-105 duration-200">
+                  <span className="text-xl">{c.flag}</span>
+                  <span className="text-xs font-bold text-slate-600">{c.name}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
