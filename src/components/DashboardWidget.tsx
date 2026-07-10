@@ -108,7 +108,7 @@ export default function DashboardWidget({
           <div 
             id="user-profile-circle"
             className="w-8 h-8 rounded-full bg-[#002B5B] hover:bg-brand-blue-light transition-all flex items-center justify-center text-white text-xs font-black cursor-pointer border border-slate-100"
-            onClick={() => setCurrentView("landing")}
+            onClick={() => setCurrentView("profile")}
             title="Profil"
           >
             JI
