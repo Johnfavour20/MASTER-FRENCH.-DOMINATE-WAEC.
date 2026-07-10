@@ -506,12 +506,16 @@ export default function DashboardWidget({
               </div>
 
               {/* Event 2 */}
-              <div className="flex items-start gap-3">
+              <div 
+                onClick={() => setCurrentView("exams")}
+                className="flex items-start gap-3 cursor-pointer hover:bg-rose-50/40 p-1.5 -m-1.5 rounded-xl transition-all"
+                title="Accéder aux examens du Vendredi"
+              >
                 <span className="bg-rose-50 text-rose-600 font-mono font-black text-[10px] px-2.5 py-1.5 rounded-lg shrink-0">
                   J-3
                 </span>
                 <div>
-                  <p className="text-xs font-black text-slate-800">Examen Hebdomadaire</p>
+                  <p className="text-xs font-black text-slate-800 hover:text-rose-600">Examen Hebdomadaire</p>
                   <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Ce Vendredi</p>
                 </div>
               </div>

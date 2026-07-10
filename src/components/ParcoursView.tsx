@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   GraduationCap, Star, Play, Lock, Settings, Bell, ChevronRight, Sparkles,
   Mic, Trophy, BookOpen, Compass, Award, Activity, Heart, ArrowLeft, Check,
-  Volume2, CheckCircle2, MessageSquare, Flag, Mail, Newspaper, FileEdit, X
+  Volume2, CheckCircle2, MessageSquare, Flag, Mail, Newspaper, FileEdit, X, Shield
 } from "lucide-react";
 
 interface ParcoursViewProps {
@@ -113,7 +113,7 @@ export default function ParcoursView({
     { id: "parcours", label: "Parcours", icon: Award, active: true },
     { id: "courses", label: "Mes Cours", icon: BookOpen },
     { id: "blitz", label: "Le Blitz", icon: Play },
-    { id: "exams", label: "Examens", icon: Lock },
+    { id: "exams", label: "Examens du Vendredi", icon: Shield },
     { id: "leaderboard", label: "Classement", icon: Trophy },
     { id: "progression", label: "Ma Progression", icon: Activity },
     { id: "badges", label: "Mes Badges", icon: Star },
@@ -416,6 +416,8 @@ export default function ParcoursView({
                       setCurrentView("dashboard");
                     } else if (item.id === "blitz") {
                       setCurrentView("blitz");
+                    } else if (item.id === "exams") {
+                      setCurrentView("exams");
                     } else if (item.id === "parcours") {
                       setActiveTab("roadmap");
                     } else if (item.id === "progression") {
@@ -433,7 +435,7 @@ export default function ParcoursView({
                     <span>{item.label}</span>
                   </div>
                   {item.id === "exams" && (
-                    <Lock className="w-3.5 h-3.5 text-slate-500" />
+                    <span className="bg-rose-500/15 text-rose-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded-sm border border-rose-500/25">IA</span>
                   )}
                 </button>
               );

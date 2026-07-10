@@ -20,6 +20,7 @@ import PlanSelectionView from "./components/PlanSelectionView";
 import ParcoursView from "./components/ParcoursView";
 import LessonViewer from "./components/LessonViewer";
 import BlitzArena from "./components/BlitzArena";
+import ExamsView from "./components/ExamsView";
 
 export default function App() {
   const [currentView, setCurrentView] = useState<string>("landing");
@@ -40,7 +41,7 @@ export default function App() {
     <div className="min-h-screen bg-[#fcfcfd] flex flex-col font-sans selection:bg-brand-blue selection:text-white">
       
       {/* Navigation Header */}
-      {currentView !== "onboarding" && currentView !== "dashboard" && currentView !== "parcours" && currentView !== "lesson-viewer" && currentView !== "blitz" && (
+      {currentView !== "onboarding" && currentView !== "dashboard" && currentView !== "parcours" && currentView !== "lesson-viewer" && currentView !== "blitz" && currentView !== "exams" && (
         <Header 
           currentView={currentView} 
           setCurrentView={setCurrentView} 
@@ -193,6 +194,18 @@ export default function App() {
           </div>
         )}
 
+        {currentView === "exams" && (
+          <div className="w-full">
+            <ExamsView 
+              userXP={userXP} 
+              userStreak={userStreak} 
+              setCurrentView={setCurrentView}
+              onGainXP={handleGainXP}
+              isPremium={isPremium}
+            />
+          </div>
+        )}
+
         {currentView === "chat" && (
           <div className="w-full">
             <AiTutorChat />
@@ -201,7 +214,7 @@ export default function App() {
       </main>
 
       {/* Persistent Beautiful Footer */}
-      {currentView !== "signup" && currentView !== "login" && currentView !== "onboarding" && currentView !== "plan-selection" && currentView !== "parcours" && currentView !== "lesson-viewer" && currentView !== "dashboard" && currentView !== "blitz" && (
+      {currentView !== "signup" && currentView !== "login" && currentView !== "onboarding" && currentView !== "plan-selection" && currentView !== "parcours" && currentView !== "lesson-viewer" && currentView !== "dashboard" && currentView !== "blitz" && currentView !== "exams" && (
         <Footer 
           setCurrentView={setCurrentView} 
           openSignupModal={() => setCurrentView("signup")} 
