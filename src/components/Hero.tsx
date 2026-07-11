@@ -9,6 +9,7 @@ import {
   Sparkles, Award, ArrowRight, ShieldCheck, PlayCircle, Globe, GraduationCap,
   Trophy, Check, X, Headphones, Volume2, Calendar, ShieldAlert, Video, FileCheck
 } from "lucide-react";
+import studentImage from '../assets/images/african_student_french_1783188944951.jpg';
 
 interface HeroProps {
   setCurrentView: (view: string) => void;
@@ -290,7 +291,7 @@ export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
               {/* Main Rounded Image */}
               <div className="relative rounded-3xl overflow-hidden border-[12px] border-white shadow-2xl aspect-square bg-slate-100">
                 <img 
-                  src="/src/assets/images/african_student_french_1783188944951.jpg" 
+                  src={studentImage}
                   alt="Smiling African Student" 
                   className="w-full h-full object-cover transform hover:scale-105 transition-all duration-700"
                   referrerPolicy="no-referrer"
