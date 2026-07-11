@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   GraduationCap, Star, Play, Lock, Settings, Bell, ChevronRight, Sparkles,
   Mic, Trophy, BookOpen, Compass, Award, Activity, Heart, ArrowLeft, Check,
@@ -345,6 +346,15 @@ export default function ParcoursView({
 
   const closePopup = () => {
     setShowPopup(false);
+  };
+
+  const navigate = useNavigate();
+
+  // Helper function to navigate to lesson page
+  const handleStartLesson = (lessonId: string) => {
+    // Extract number from lesson ID (e.g., "l1" -> "1")
+    const lessonNumber = lessonId.replace(/[^0-9]/g, '');
+    navigate(`/lesson/${lessonNumber}`);
   };
 
   // Lesson interactive flow questions
@@ -1221,8 +1231,8 @@ export default function ParcoursView({
                 <button
                   onClick={() => {
                     setShowPopup(false);
-                    if (selectedNode.id === "l1") {
-                      setCurrentView("lesson-viewer");
+                    if (selectedNode.id.startsWith("l")) {
+                      handleStartLesson(selectedNode.id);
                     } else {
                       startLesson();
                     }
@@ -1237,8 +1247,8 @@ export default function ParcoursView({
                 <button
                   onClick={() => {
                     setShowPopup(false);
-                    if (selectedNode.id === "l1") {
-                      setCurrentView("lesson-viewer");
+                    if (selectedNode.id.startsWith("l")) {
+                      handleStartLesson(selectedNode.id);
                     } else {
                       startLesson();
                     }
@@ -1253,8 +1263,8 @@ export default function ParcoursView({
                 <button
                   onClick={() => {
                     setShowPopup(false);
-                    if (selectedNode.id === "l1") {
-                      setCurrentView("lesson-viewer");
+                    if (selectedNode.id.startsWith("l")) {
+                      handleStartLesson(selectedNode.id);
                     } else {
                       startLesson();
                     }

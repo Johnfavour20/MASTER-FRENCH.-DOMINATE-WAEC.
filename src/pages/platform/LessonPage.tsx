@@ -5,7 +5,7 @@ import { useAuthStore } from '../../stores/authStore'
 
 export default function LessonPage() {
   const navigate = useNavigate()
-  const { lessonId } = useParams()
+  const { id: lessonId } = useParams()
   const { user, updateXP } = useAuthStore()
 
   const handleSetCurrentView = (view: string) => {

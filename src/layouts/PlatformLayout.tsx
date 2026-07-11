@@ -12,6 +12,7 @@ export const PlatformLayout = () => {
   const location = useLocation()
   const { user, logout, updateXP } = useAuthStore()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
 
   const activePath = location.pathname
@@ -33,8 +34,10 @@ export const PlatformLayout = () => {
   return (
     <div className="w-full min-h-screen bg-[#fcfcfd] flex font-sans antialiased text-[#002B5B]">
       
-      {/* 1. Side Navigation Rail (Desktop Only) */}
-      <aside className="w-64 border-r border-slate-100 bg-white flex flex-col justify-between shrink-0 sticky top-0 h-screen hidden md:flex z-50">
+      {/* 1. Side Navigation Rail (Desktop - Collapsible) */}
+      <aside className={`border-r border-slate-100 bg-white flex flex-col justify-between shrink-0 sticky top-0 h-screen hidden md:flex z-50 transition-all duration-300 ${
+        sidebarOpen ? 'w-64' : 'w-20'
+      }`}>
         <div className="p-6 overflow-y-auto">
           {/* Logo with Cap Icon */}
           <div 
@@ -44,14 +47,16 @@ export const PlatformLayout = () => {
             <div className="bg-[#002B5B] p-1.5 rounded-xl text-white group-hover:bg-blue-800 transition-all shadow-md shrink-0">
               <GraduationCap className="w-5 h-5 stroke-[2.5]" />
             </div>
-            <div>
-              <span className="font-display font-black text-lg tracking-tight text-[#002B5B] block leading-none">
-                La Plume
-              </span>
-              <span className="text-[9px] uppercase tracking-widest font-mono text-amber-500 font-bold block -mt-0.5">
-                French Prep
-              </span>
-            </div>
+            {sidebarOpen && (
+              <div>
+                <span className="font-display font-black text-lg tracking-tight text-[#002B5B] block leading-none">
+                  La Plume
+                </span>
+                <span className="text-[9px] uppercase tracking-widest font-mono text-amber-500 font-bold block -mt-0.5">
+                  French Prep
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Navigation Items */}
@@ -64,17 +69,18 @@ export const PlatformLayout = () => {
                   key={item.id}
                   id={`platform-sidebar-${item.id}`}
                   onClick={() => navigate(item.path)}
+                  title={sidebarOpen ? undefined : item.label}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     isActive 
                       ? "bg-blue-50 text-blue-700 border border-blue-100" 
                       : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                  }`}
+                  } ${!sidebarOpen && 'justify-center'}`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : ""}`} />
-                    <span>{item.label}</span>
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-blue-600" : ""}`} />
+                    {sidebarOpen && <span>{item.label}</span>}
                   </div>
-                  {item.badge && (
+                  {sidebarOpen && item.badge && (
                     <span className="bg-rose-500/15 text-rose-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded-sm border border-rose-500/25">
                       {item.badge}
                     </span>
@@ -89,17 +95,19 @@ export const PlatformLayout = () => {
         <div className="p-6 border-t border-slate-100 space-y-1">
           <button 
             onClick={() => navigate('/profil')}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all cursor-pointer"
+            title={sidebarOpen ? undefined : 'Paramètres'}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all cursor-pointer justify-center"
           >
-            <Settings className="w-4 h-4" />
-            <span>Paramètres</span>
+            <Settings className="w-4 h-4 shrink-0" />
+            {sidebarOpen && <span>Paramètres</span>}
           </button>
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-all cursor-pointer"
+            title={sidebarOpen ? undefined : 'Déconnexion'}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-all cursor-pointer justify-center"
           >
-            <LogOut className="w-4 h-4" />
-            <span>Déconnexion</span>
+            <LogOut className="w-4 h-4 shrink-0" />
+            {sidebarOpen && <span>Déconnexion</span>}
           </button>
         </div>
       </aside>
@@ -110,6 +118,16 @@ export const PlatformLayout = () => {
         {/* Top Header/Navbar */}
         <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-4">
+            {/* Desktop Sidebar Toggle */}
+            <button 
+              id="desktop-sidebar-toggle" 
+              className="p-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer hidden md:block"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              title="Basculer la barre latérale"
+            >
+              <Menu className="w-5 h-5 text-slate-500" />
+            </button>
+            
             {/* Mobile Menu Toggle */}
             <button 
               id="mobile-menu-toggle" 

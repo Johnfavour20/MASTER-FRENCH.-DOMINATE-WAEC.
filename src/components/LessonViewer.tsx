@@ -9,6 +9,8 @@ import {
   ChevronLeft, ChevronRight, LogOut, ArrowLeft, Star, Volume2, 
   CheckCircle2, Clock, ShieldAlert, Award, Menu, BookOpen
 } from "lucide-react";
+import VideoPlayer from "./VideoPlayer";
+import localLessonVideo from "../assets/videos/vidssave.com Learn French from Zero - French Absolute Beginners Guide 240P.mp4";
 
 interface LessonViewerProps {
   userXP: number;
@@ -538,56 +540,11 @@ export default function LessonViewer({
                     Capsule Vidéo : Explication Pédagogique
                   </h4>
 
-                  {/* Dark compliance video preview frame */}
-                  <div className="bg-[#0B1325] rounded-3xl overflow-hidden aspect-video relative flex flex-col justify-between p-6 group border border-slate-800 shadow-md">
-                    {/* Simulated visual background layer */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,210,20,0.08),transparent)] pointer-events-none" />
-
-                    <div className="text-right z-10">
-                      <span className="bg-white/10 text-white text-[10px] font-mono font-black px-2.5 py-1 rounded-full backdrop-blur-xs">
-                        HD 1080p
-                      </span>
-                    </div>
-
-                    {/* Central Play Controller Button */}
-                    <div className="flex justify-center items-center z-10">
-                      <button 
-                        id="video-player-trigger"
-                        onClick={() => setIsPlayingVideo(!isPlayingVideo)}
-                        className="w-16 h-16 rounded-full bg-white text-[#0B1325] hover:bg-slate-100 flex items-center justify-center shadow-lg transform hover:scale-110 active:scale-95 transition-all cursor-pointer"
-                        title={isPlayingVideo ? "Pause" : "Play video lesson"}
-                      >
-                        {isPlayingVideo ? (
-                          <div className="flex gap-1.5 justify-center items-center">
-                            <span className="w-1.5 h-5 bg-[#0B1325] rounded-full inline-block animate-pulse" />
-                            <span className="w-1.5 h-5 bg-[#0B1325] rounded-full inline-block animate-pulse" style={{ animationDelay: "0.2s" }} />
-                          </div>
-                        ) : (
-                          <Play className="w-6 h-6 fill-current ml-1" />
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Player Control Bar HUD */}
-                    <div className="z-10 w-full bg-black/40 backdrop-blur-xs p-3 rounded-2xl flex items-center justify-between border border-white/5">
-                      <div className="flex items-center gap-2.5 text-xs font-bold text-white">
-                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block animate-pulse" />
-                        <span>Capsule 1.1 : Les Secrets des Articles</span>
-                      </div>
-                      
-                      {/* Video dynamic slider bar if playing */}
-                      {isPlayingVideo && (
-                        <div className="flex-1 mx-6 h-1 bg-white/20 rounded-full overflow-hidden hidden sm:block">
-                          <div className="h-full bg-[#FFD214]" style={{ width: `${videoProgress}%` }} />
-                        </div>
-                      )}
-
-                      <span className="text-[10px] font-mono text-slate-300 font-bold bg-white/5 px-2 py-0.5 rounded">
-                        05:40
-                      </span>
-                    </div>
-
-                  </div>
+                  {/* Embedded YouTube player (plays inline on the platform) */}
+                  <VideoPlayer
+                    videoUrl={localLessonVideo}
+                    title="Les Secrets des Articles"
+                  />
                 </div>
 
               </div>
