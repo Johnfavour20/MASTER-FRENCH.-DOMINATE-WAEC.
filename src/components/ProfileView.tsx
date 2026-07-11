@@ -325,7 +325,10 @@ export default function ProfileView({
                   <p className="font-display font-black text-base text-slate-800">
                     {firstName} {lastName.substring(0, 1)}.
                   </p>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">🇳🇬 Nigeria</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 flex items-center gap-1.5 justify-center">
+                    <img src="https://flagcdn.com/w20/ng.png" alt="Nigeria" className="w-3.5 h-2.5 object-cover rounded-xs" />
+                    Nigeria
+                  </p>
 
                   <div className="w-full space-y-2 mt-5">
                     <div className="flex justify-between items-center bg-white border border-slate-100 p-2.5 rounded-xl">

@@ -16,6 +16,7 @@ interface ParcoursViewProps {
   setCurrentView: (view: string) => void;
   isPremium?: boolean;
   defaultTab?: "roadmap" | "stats";
+  hideSidebar?: boolean;
 }
 
 interface NodeInfo {
@@ -34,7 +35,8 @@ export default function ParcoursView({
   userStreak, 
   setCurrentView,
   isPremium = false,
-  defaultTab = "roadmap"
+  defaultTab = "roadmap",
+  hideSidebar = false
 }: ParcoursViewProps) {
   const [localXP, setLocalXP] = useState(userXP);
   const [selectedNode, setSelectedNode] = useState<NodeInfo | null>(null);
@@ -379,81 +381,82 @@ export default function ParcoursView({
   return (
     <div className="w-full min-h-screen bg-[#fcfcfd] text-slate-800 flex font-sans antialiased selection:bg-blue-600 selection:text-white">
       
-      {/* 1. Side Navigation Rail */}
-      <aside className="w-64 border-r border-slate-100 bg-white flex flex-col justify-between shrink-0 sticky top-0 h-screen hidden md:flex transition-all">
-        <div className="p-6">
-          {/* Logo with Cap Icon */}
-          <div 
-            className="flex items-center gap-3 cursor-pointer group mb-8"
-            onClick={() => setCurrentView("landing")}
-          >
-            <div className="bg-[#002B5B] p-1.5 rounded-xl text-white group-hover:bg-blue-800 transition-all shadow-md shrink-0">
-              <GraduationCap className="w-5 h-5 stroke-[2.5]" />
+      {!hideSidebar && (
+        <aside className="w-64 border-r border-slate-100 bg-white flex flex-col justify-between shrink-0 sticky top-0 h-screen hidden md:flex transition-all">
+          <div className="p-6">
+            {/* Logo with Cap Icon */}
+            <div 
+              className="flex items-center gap-3 cursor-pointer group mb-8"
+              onClick={() => setCurrentView("landing")}
+            >
+              <div className="bg-[#002B5B] p-1.5 rounded-xl text-white group-hover:bg-blue-800 transition-all shadow-md shrink-0">
+                <GraduationCap className="w-5 h-5 stroke-[2.5]" />
+              </div>
+              <div>
+                <span className="font-display font-black text-lg tracking-tight text-[#002B5B] block leading-none">
+                  La Plume
+                </span>
+                <span className="text-[9px] uppercase tracking-widest font-mono text-amber-500 font-bold block -mt-0.5">
+                  French Prep
+                </span>
+              </div>
             </div>
-            <div>
-              <span className="font-display font-black text-lg tracking-tight text-[#002B5B] block leading-none">
-                La Plume
-              </span>
-              <span className="text-[9px] uppercase tracking-widest font-mono text-amber-500 font-bold block -mt-0.5">
-                French Prep
-              </span>
-            </div>
+
+            {/* Navigation Items */}
+            <nav className="space-y-1">
+              {sidebarItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = 
+                  (item.id === "parcours" && activeTab === "roadmap") || 
+                  (item.id === "progression" && activeTab === "stats");
+                return (
+                  <button
+                    key={item.id}
+                    id={`sidebar-item-${item.id}`}
+                    onClick={() => {
+                      if (item.id === "dashboard") {
+                        setCurrentView("dashboard");
+                      } else if (item.id === "blitz") {
+                        setCurrentView("blitz");
+                      } else if (item.id === "exams") {
+                        setCurrentView("exams");
+                      } else if (item.id === "parcours") {
+                        setActiveTab("roadmap");
+                      } else if (item.id === "progression") {
+                        setActiveTab("stats");
+                      }
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      isActive 
+                        ? "bg-blue-50 text-blue-700 border border-blue-100" 
+                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : ""}`} />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.id === "exams" && (
+                      <span className="bg-rose-500/15 text-rose-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded-sm border border-rose-500/25">IA</span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
 
-          {/* Navigation Items */}
-          <nav className="space-y-1">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = 
-                (item.id === "parcours" && activeTab === "roadmap") || 
-                (item.id === "progression" && activeTab === "stats");
-              return (
-                <button
-                  key={item.id}
-                  id={`sidebar-item-${item.id}`}
-                  onClick={() => {
-                    if (item.id === "dashboard") {
-                      setCurrentView("dashboard");
-                    } else if (item.id === "blitz") {
-                      setCurrentView("blitz");
-                    } else if (item.id === "exams") {
-                      setCurrentView("exams");
-                    } else if (item.id === "parcours") {
-                      setActiveTab("roadmap");
-                    } else if (item.id === "progression") {
-                      setActiveTab("stats");
-                    }
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    isActive 
-                      ? "bg-blue-50 text-blue-700 border border-blue-100" 
-                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : ""}`} />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.id === "exams" && (
-                    <span className="bg-rose-500/15 text-rose-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded-sm border border-rose-500/25">IA</span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Sidebar Footer Settings */}
-        <div className="p-6 border-t border-slate-100">
-          <button 
-            onClick={() => setCurrentView("dashboard")}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all cursor-pointer"
-          >
-            <Settings className="w-4 h-4" />
-            <span>Paramètres</span>
-          </button>
-        </div>
-      </aside>
+          {/* Sidebar Footer Settings */}
+          <div className="p-6 border-t border-slate-100">
+            <button 
+              onClick={() => setCurrentView("dashboard")}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all cursor-pointer"
+            >
+              <Settings className="w-4 h-4" />
+              <span>Paramètres</span>
+            </button>
+          </div>
+        </aside>
+      )}
 
       {/* 2. Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen relative overflow-hidden">

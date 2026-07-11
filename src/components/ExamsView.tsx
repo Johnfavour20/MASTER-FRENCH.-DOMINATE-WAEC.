@@ -17,6 +17,7 @@ interface ExamsViewProps {
   setCurrentView: (view: string) => void;
   onGainXP: (amount: number) => void;
   isPremium?: boolean;
+  hideSidebar?: boolean;
 }
 
 export default function ExamsView({
@@ -24,7 +25,8 @@ export default function ExamsView({
   userStreak,
   setCurrentView,
   onGainXP,
-  isPremium = false
+  isPremium = false,
+  hideSidebar = false
 }: ExamsViewProps) {
   // Navigation tabs inside Exams panel
   const [activeTab, setActiveTab] = useState<"lobby" | "exam" | "warning" | "results">("lobby");
@@ -482,52 +484,54 @@ export default function ExamsView({
     <div className="w-full min-h-screen bg-[#fcfcfd] text-[#002B5B] flex font-sans antialiased selection:bg-[#FFD214] selection:text-[#002B5B]">
       
       {/* Sidebar navigation */}
-      <aside className="w-64 border-r border-slate-100 bg-white flex flex-col justify-between shrink-0 sticky top-0 h-screen hidden md:flex">
-        <div className="p-6">
-          <div className="flex items-center gap-3 cursor-pointer group mb-8" onClick={() => setCurrentView("dashboard")}>
-            <div className="bg-[#002B5B] p-1.5 rounded-xl text-white group-hover:bg-blue-800 transition-all shadow-md shrink-0">
-              <Award className="w-5 h-5 stroke-[2.5]" />
+      {!hideSidebar && (
+        <aside className="w-64 border-r border-slate-100 bg-white flex flex-col justify-between shrink-0 sticky top-0 h-screen hidden md:flex">
+          <div className="p-6">
+            <div className="flex items-center gap-3 cursor-pointer group mb-8" onClick={() => setCurrentView("dashboard")}>
+              <div className="bg-[#002B5B] p-1.5 rounded-xl text-white group-hover:bg-blue-800 transition-all shadow-md shrink-0">
+                <Award className="w-5 h-5 stroke-[2.5]" />
+              </div>
+              <div>
+                <span className="font-display font-bold text-lg tracking-tight text-[#002B5B] block leading-none">
+                  La Plume
+                </span>
+                <span className="text-[9px] uppercase tracking-widest font-mono text-amber-500 font-bold block -mt-0.5">
+                  French Prep
+                </span>
+              </div>
             </div>
-            <div>
-              <span className="font-display font-bold text-lg tracking-tight text-[#002B5B] block leading-none">
-                La Plume
-              </span>
-              <span className="text-[9px] uppercase tracking-widest font-mono text-amber-500 font-bold block -mt-0.5">
-                French Prep
-              </span>
-            </div>
+
+            <nav className="space-y-1">
+              {[
+                { id: "dashboard", label: "Tableau de Bord", icon: ArrowLeft },
+                { id: "parcours", label: "Parcours", icon: Award },
+                { id: "exams", label: "Examens du Vendredi", icon: Shield, active: true },
+                { id: "blitz", label: "Le Blitz", icon: Play }
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentView(item.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      item.active
+                        ? "bg-[#002B5B]/5 text-[#002B5B] border border-[#002B5B]/10"
+                        : "text-slate-500 hover:bg-slate-50 hover:text-[#002B5B]"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
           </div>
 
-          <nav className="space-y-1">
-            {[
-              { id: "dashboard", label: "Tableau de Bord", icon: ArrowLeft },
-              { id: "parcours", label: "Parcours", icon: Award },
-              { id: "exams", label: "Examens du Vendredi", icon: Shield, active: true },
-              { id: "blitz", label: "Le Blitz", icon: Play }
-            ].map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setCurrentView(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    item.active
-                      ? "bg-[#002B5B]/5 text-[#002B5B] border border-[#002B5B]/10"
-                      : "text-slate-500 hover:bg-slate-50 hover:text-[#002B5B]"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        <div className="p-6 border-t border-slate-100 text-[10px] font-mono text-slate-400 text-center">
-          Proctoring IA Actif
-        </div>
-      </aside>
+          <div className="p-6 border-t border-slate-100 text-[10px] font-mono text-slate-400 text-center">
+            Proctoring IA Actif
+          </div>
+        </aside>
+      )}
 
       {/* Main Container */}
       <div className="flex-1 flex flex-col min-h-screen relative overflow-hidden" ref={examContainerRef}>
@@ -535,16 +539,26 @@ export default function ExamsView({
         {/* Header bar */}
         <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-100 px-8 py-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setCurrentView("dashboard")}
-              className="md:hidden p-1.5 bg-slate-100 rounded-lg hover:bg-slate-200 text-[#002B5B] cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-            <span className="font-display font-bold text-sm md:text-base text-[#002B5B] tracking-tight uppercase flex items-center gap-2">
-              <Shield className="w-4 h-4 text-rose-500 fill-rose-500/10" />
-              <span>Examens du Vendredi — Weekly Proctored Mock</span>
-            </span>
+            {!hideSidebar && (
+              <>
+                <button 
+                  onClick={() => setCurrentView("dashboard")}
+                  className="md:hidden p-1.5 bg-slate-100 rounded-lg hover:bg-slate-200 text-[#002B5B] cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <span className="font-display font-bold text-sm md:text-base text-[#002B5B] tracking-tight uppercase flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-rose-500 fill-rose-500/10" />
+                  <span>Examens du Vendredi — Weekly Proctored Mock</span>
+                </span>
+              </>
+            )}
+            {hideSidebar && (
+              <span className="font-display font-bold text-xs md:text-sm text-slate-500 uppercase tracking-wide flex items-center gap-2">
+                <Shield className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+                <span>Session d'Examen Sécurisée</span>
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-4 text-xs font-mono">

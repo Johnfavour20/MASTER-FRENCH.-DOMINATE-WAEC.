@@ -704,10 +704,10 @@ export default function SignupView({ setCurrentView, onSignupSuccess, initialMod
           {/* List */}
           <div className="space-y-2.5">
             {[
-              { rank: 1, name: "Ibrahim S.", country: "🇸🇳", xp: "2,450 XP", color: "text-amber-500", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60" },
-              { rank: 2, name: "Awa D.", country: "🇨🇮", xp: "2,120 XP", color: "text-slate-300", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=60" },
-              { rank: 3, name: "Kofi B.", country: "🇬🇭", xp: "1,980 XP", color: "text-amber-700", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=60" },
-              { rank: 4, name: "Zainab L.", country: "🇳🇬", xp: "1,840 XP", color: "text-slate-400", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=60" }
+              { rank: 1, name: "Ibrahim S.", code: "sn", country: "Senegal", xp: "2,450 XP", color: "text-amber-500", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60" },
+              { rank: 2, name: "Awa D.", code: "ci", country: "Côte d'Ivoire", xp: "2,120 XP", color: "text-slate-300", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=60" },
+              { rank: 3, name: "Kofi B.", code: "gh", country: "Ghana", xp: "1,980 XP", color: "text-amber-700", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=60" },
+              { rank: 4, name: "Zainab L.", code: "ng", country: "Nigeria", xp: "1,840 XP", color: "text-slate-400", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=60" }
             ].map((usr, i) => (
               <div key={i} className="flex items-center justify-between text-xs bg-white/2 border border-white/5 px-3 py-2 rounded-xl">
                 <div className="flex items-center gap-2.5">
@@ -716,7 +716,7 @@ export default function SignupView({ setCurrentView, onSignupSuccess, initialMod
                   <span className="font-semibold text-slate-100">{usr.name}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-slate-400">{usr.country}</span>
+                  <img src={`https://flagcdn.com/w20/${usr.code}.png`} alt={usr.country} className="w-3.5 h-2.5 object-cover rounded-xs" />
                   <span className="font-bold text-amber-400 font-mono text-[11px]">{usr.xp}</span>
                 </div>
               </div>
