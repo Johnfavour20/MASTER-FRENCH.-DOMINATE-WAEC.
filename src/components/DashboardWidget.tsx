@@ -15,6 +15,7 @@ interface DashboardWidgetProps {
   setCurrentView: (view: string) => void;
   isPremium?: boolean;
   userFullName?: string;
+  hideHeader?: boolean;
 }
 
 export default function DashboardWidget({ 
@@ -22,9 +23,13 @@ export default function DashboardWidget({
   userStreak, 
   setCurrentView, 
   isPremium = false,
-  userFullName = "Johnfavour"
+  userFullName = "Johnfavour",
+  hideHeader = false
 }: DashboardWidgetProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => setIsSidebarOpen((open) => !open);
 
   // Skills mastery progress values matching the screenshot
   const skills = [
@@ -43,14 +48,63 @@ export default function DashboardWidget({
   return (
     <div className="w-full min-h-screen bg-[#fcfcfd] pb-16 font-sans antialiased text-[#002B5B]">
       
-      {/* 1. App Header Layout */}
-      <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-100 px-4 py-3 flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-4">
+      {!hideHeader && (
+        <>
+          {/* Sidebar Backdrop */}
+          {isSidebarOpen && (
+            <div
+              className="fixed inset-0 z-40 bg-black/40 md:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
+
+          {/* Sidebar Drawer */}
+          <aside
+            className={`fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-slate-100 shadow-xl transform transition-transform duration-300 md:hidden ${
+              isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
+            <div className="flex items-center justify-between px-4 py-4 border-b border-slate-100">
+              <p className="text-sm font-black text-[#002B5B]">Menu</p>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="p-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
+                aria-label="Fermer le menu"
+              >
+                <span className="text-xl font-black">×</span>
+              </button>
+            </div>
+            <nav className="px-4 py-4 space-y-2">
+              {[
+                { label: "Tableau de Bord", view: "dashboard" },
+                { label: "Parcours", view: "parcours" },
+                { label: "Quiz", view: "quiz" },
+                { label: "Validation IA", view: "validation" },
+                { label: "Tuteur d'IA", view: "chat" },
+                { label: "Profil", view: "profile" }
+              ].map((item) => (
+                <button
+                  key={item.view}
+                  onClick={() => {
+                    setCurrentView(item.view);
+                    setIsSidebarOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </aside>
+
+          {/* 1. App Header Layout */}
+          <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-100 px-4 py-3 flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-4">
           {/* Menu Trigger */}
           <button 
             id="app-menu-toggle" 
             className="p-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
-            onClick={() => setCurrentView("landing")}
+            onClick={toggleSidebar}
             title="Menu principal"
           >
             <Menu className="w-5 h-5 text-slate-500" />
@@ -115,9 +169,37 @@ export default function DashboardWidget({
           </div>
         </div>
       </header>
-
+        </>
+      )}
       {/* Main Container */}
-      <div className="max-w-5xl mx-auto px-4 mt-6">
+      <div className="max-w-7xl mx-auto px-4 mt-6 flex flex-col lg:flex-row gap-6">
+        <aside className={`hidden ${isSidebarOpen ? "lg:block" : "lg:hidden"} w-80 shrink-0 rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden`}>
+          <div className="bg-slate-50 px-5 py-4 border-b border-slate-200">
+            <p className="text-sm font-black text-[#002B5B]">Menu</p>
+          </div>
+          <div className="px-4 py-5 space-y-2">
+            {[
+              { label: "Tableau de Bord", view: "dashboard" },
+              { label: "Parcours", view: "parcours" },
+              { label: "Le Blitz", view: "blitz" },
+              { label: "Quiz", view: "quiz" },
+              { label: "Validation IA", view: "validation" },
+              { label: "Tuteur d'IA", view: "chat" },
+              { label: "Profil", view: "profile" }
+            ].map((item) => (
+              <button
+                key={item.view}
+                onClick={() => setCurrentView(item.view)}
+                className="w-full text-left rounded-3xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        <div className="flex-1">
+          <div className="max-w-5xl mx-auto">
 
         {/* Premium Banner Offer (Only shown if not premium) */}
         {!isPremium && (
@@ -741,5 +823,7 @@ export default function DashboardWidget({
 
       </div>
     </div>
+  </div>
+</div>
   );
 }

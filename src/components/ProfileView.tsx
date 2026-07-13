@@ -392,7 +392,7 @@ export default function ProfileView({
               </span>
               <span className="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] md:text-xs font-semibold flex items-center gap-1">
                 <Globe className="w-3 h-3 text-slate-400" />
-                Nigeria • {grade}
+                🇳🇬 Nigeria • {grade}
               </span>
             </div>
           </div>

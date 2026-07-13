@@ -17,6 +17,7 @@ interface ExamsViewProps {
   setCurrentView: (view: string) => void;
   onGainXP: (amount: number) => void;
   isPremium?: boolean;
+  hideSidebar?: boolean;
 }
 
 export default function ExamsView({
@@ -24,15 +25,19 @@ export default function ExamsView({
   userStreak,
   setCurrentView,
   onGainXP,
-  isPremium = false
+  isPremium = false,
+  hideSidebar = false
 }: ExamsViewProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(!hideSidebar);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setIsSidebarOpen(false);
     }
-  }, []);
+    if (hideSidebar) {
+      setIsSidebarOpen(false);
+    }
+  }, [hideSidebar]);
 
   // Navigation tabs inside Exams panel
   const [activeTab, setActiveTab] = useState<"lobby" | "exam" | "warning" | "results">("lobby");

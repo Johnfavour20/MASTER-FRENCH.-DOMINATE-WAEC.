@@ -16,6 +16,7 @@ interface ParcoursViewProps {
   setCurrentView: (view: string) => void;
   isPremium?: boolean;
   defaultTab?: "roadmap" | "stats";
+  hideSidebar?: boolean;
 }
 
 interface NodeInfo {
@@ -34,16 +35,20 @@ export default function ParcoursView({
   userStreak, 
   setCurrentView,
   isPremium = false,
-  defaultTab = "roadmap"
+  defaultTab = "roadmap",
+  hideSidebar = false
 }: ParcoursViewProps) {
   const [localXP, setLocalXP] = useState(userXP);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(!hideSidebar);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setIsSidebarOpen(false);
     }
-  }, []);
+    if (hideSidebar) {
+      setIsSidebarOpen(false);
+    }
+  }, [hideSidebar]);
   const [selectedNode, setSelectedNode] = useState<NodeInfo | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [activeTab, setActiveTab] = useState<"roadmap" | "stats">(defaultTab);

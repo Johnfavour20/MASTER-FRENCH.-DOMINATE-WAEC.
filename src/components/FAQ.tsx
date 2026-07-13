@@ -54,7 +54,7 @@ export default function FAQ() {
   };
 
   return (
-    <section className="w-full py-20 bg-white">
+    <section id="faq" className="w-full py-20 bg-white">
       <div className="max-w-3xl mx-auto px-4">
         
         {/* Title */}

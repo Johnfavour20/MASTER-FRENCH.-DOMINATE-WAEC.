@@ -797,7 +797,7 @@ export default function PlanSelectionView({
                       </div>
                       <div>
                         <p className="text-slate-400 font-bold uppercase text-[8px] tracking-wider">PAYS</p>
-                        <p className="font-extrabold text-white mt-0.5">{checkoutCountry.name.split(" ")[1] || "Nigeria"}</p>
+                        <p className="font-extrabold text-white mt-0.5">{checkoutCountry.name}</p>
                       </div>
                     </div>
                   </div>

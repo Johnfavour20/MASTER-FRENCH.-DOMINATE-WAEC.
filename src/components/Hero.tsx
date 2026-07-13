@@ -13,9 +13,11 @@ import {
 interface HeroProps {
   setCurrentView: (view: string) => void;
   openSignupModal: () => void;
+  language?: 'en' | 'fr';
+  onLanguageToggle?: () => void;
 }
 
-export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
+export default function Hero({ setCurrentView, openSignupModal, language = 'en', onLanguageToggle }: HeroProps) {
   // Live Countdown State
   const [timeLeft, setTimeLeft] = useState({
     days: 23,
@@ -250,7 +252,7 @@ export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
                 onClick={openSignupModal}
                 className="w-full sm:w-auto bg-brand-blue hover:bg-brand-blue-light text-white font-extrabold text-base px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 cursor-pointer flex items-center justify-center gap-2"
               >
-                Join Cohort — Free
+                {language === 'en' ? 'Join Cohort — Free' : 'Rejoindre la cohorte — Gratuit'}
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
@@ -261,7 +263,16 @@ export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
                 className="w-full sm:w-auto bg-white hover:bg-slate-50 text-brand-blue border-2 border-brand-blue/10 hover:border-brand-blue font-bold text-base px-8 py-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <PlayCircle className="w-5 h-5 text-brand-blue" />
-                How it Works
+                {language === 'en' ? 'How it Works' : 'Comment ça marche'}
+              </button>
+            </div>
+            <div className="flex justify-center lg:justify-start mb-8">
+              <button
+                onClick={onLanguageToggle}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+              >
+                <Globe className="w-4 h-4 text-slate-600" />
+                {language === 'en' ? 'Switch to French' : 'Passer en anglais'}
               </button>
             </div>
 
@@ -379,7 +390,8 @@ export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
       {/* Flag Section (Social Proof Countries with Infinite Marquee) */}
       <section className="w-full py-8 border-y border-slate-100 bg-slate-50/30 overflow-hidden">
         <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
-          <span className="text-xs uppercase font-mono font-bold tracking-widest text-slate-400 shrink-0 text-center md:text-left">
+          <span className="flex items-center gap-2 text-xs uppercase font-mono font-bold tracking-widest text-slate-400 shrink-0 text-center md:text-left">
+            <Globe className="w-4 h-4" />
             REGISTERED STUDENTS FROM:
           </span>
           <div className="relative flex overflow-hidden w-full max-w-3xl py-1">
@@ -722,8 +734,8 @@ export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
         </div>
       </section>
 
-      {/* EXAM SYLLABUS Section */}
-      <section className="w-full bg-slate-50/40 border-y border-slate-100 py-20 md:py-28">
+      {/* Features Section */}
+      <section id="features" className="w-full bg-slate-50/40 border-y border-slate-100 py-20 md:py-28">
         <div className="max-w-6xl mx-auto px-4">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
