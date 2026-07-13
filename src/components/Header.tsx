@@ -28,6 +28,13 @@ export default function Header({ currentView, setCurrentView, openSignupModal }:
     setMobileMenuOpen(false);
   };
 
+  const goToLandingAndScroll = (sectionId: string) => {
+    handleNavClick("landing");
+    window.setTimeout(() => scrollLandingSection(sectionId), 120);
+  };
+
+  const isPublicPage = ["landing", "signup", "login"].includes(currentView);
+
   const landingNavLinks = [
     { id: "nav-how-it-works", label: "How it Works", section: "how-it-works" },
     { id: "nav-pricing", label: "Pricing", section: "pricing" },
@@ -63,39 +70,39 @@ export default function Header({ currentView, setCurrentView, openSignupModal }:
 
         {/* Navigation - Centered Desktop Link Grid */}
         <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-sm font-semibold text-slate-600 tracking-tight">
-          {currentView === "landing" ? (
+          {isPublicPage ? (
             <>
               <button
                 id="nav-home"
                 onClick={() => handleNavClick("landing")}
                 className="px-2.5 py-1.5 xl:px-3 xl:py-2 rounded-lg transition-all hover:bg-slate-50 hover:text-brand-blue"
               >
-                Home
+                Accueil
               </button>
               <button
                 id="nav-how-it-works"
-                onClick={() => scrollLandingSection("how-it-works")}
+                onClick={() => goToLandingAndScroll("how-it-works")}
                 className="px-2.5 py-1.5 xl:px-3 xl:py-2 rounded-lg transition-all hover:bg-slate-50 hover:text-brand-blue"
               >
                 How it Works
               </button>
               <button
                 id="nav-features"
-                onClick={() => scrollLandingSection("features")}
+                onClick={() => goToLandingAndScroll("features")}
                 className="px-2.5 py-1.5 xl:px-3 xl:py-2 rounded-lg transition-all hover:bg-slate-50 hover:text-brand-blue"
               >
                 Features
               </button>
               <button
                 id="nav-pricing"
-                onClick={() => scrollLandingSection("pricing")}
+                onClick={() => goToLandingAndScroll("pricing")}
                 className="px-2.5 py-1.5 xl:px-3 xl:py-2 rounded-lg transition-all hover:bg-slate-50 hover:text-brand-blue"
               >
                 Pricing
               </button>
               <button
                 id="nav-faq"
-                onClick={() => scrollLandingSection("faq")}
+                onClick={() => goToLandingAndScroll("faq")}
                 className="px-2.5 py-1.5 xl:px-3 xl:py-2 rounded-lg transition-all hover:bg-slate-50 hover:text-brand-blue"
               >
                 FAQ

@@ -81,6 +81,19 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
     setBlitzTimer(45);
   };
 
+  const heroStudentImage = new URL(
+    "../assets/images/download (1).jpg",
+    import.meta.url
+  ).href;
+
+  const registeredCountries = [
+    { logo: new URL("../assets/images/nigeria.svg", import.meta.url).href, flag: "🇳🇬", name: "Nigeria" },
+    { logo: new URL("../assets/images/Ghana.jpg", import.meta.url).href, name: "Ghana" },
+    { logo: new URL("../assets/images/kenya.jpg", import.meta.url).href, name: "Kenya" },
+    { logo: new URL("../assets/images/Sierra Leone.jpg", import.meta.url).href, name: "Sierra Leone" },
+    { logo: new URL("../assets/images/liberia.jpg", import.meta.url).href, name: "Liberia" }
+  ];
+
   // 6 Reality Points matching the screenshot exactly
   const realities = [
     {
@@ -301,7 +314,7 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
               {/* Main Rounded Image */}
               <div className="relative rounded-3xl overflow-hidden border-[12px] border-white shadow-2xl aspect-square bg-slate-100">
                 <img 
-                  src="/src/assets/images/african_student_french_1783188944951.jpg" 
+                  src={heroStudentImage}
                   alt="Smiling African Student" 
                   className="w-full h-full object-cover transform hover:scale-105 transition-all duration-700"
                   referrerPolicy="no-referrer"
@@ -400,28 +413,24 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
             <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-slate-50/80 to-transparent z-10 pointer-events-none" />
             
             <div className="animate-marquee flex whitespace-nowrap py-1">
-              {[
-                { flag: "🇳🇬", name: "Nigeria" },
-                { flag: "🇬🇭", name: "Ghana" },
-                { flag: "🇰🇪", name: "Kenya" },
-                { flag: "🇸🇱", name: "Sierra Leone" },
-                { flag: "🇱🇷", name: "Liberia" }
-              ].map((c, idx) => (
+              {registeredCountries.map((c, idx) => (
                 <div key={`c1-${idx}`} className="flex items-center gap-2 bg-white px-4.5 py-2.5 rounded-xl border border-slate-100 shadow-xs mr-6 shrink-0 transition-transform hover:scale-105 duration-200">
-                  <span className="text-xl">{c.flag}</span>
+                  {c.logo ? (
+                    <img src={c.logo} alt={`${c.name} logo`} className="w-6 h-6 rounded-full object-cover" referrerPolicy="no-referrer" />
+                  ) : (
+                    <span className="text-xl">{c.flag}</span>
+                  )}
                   <span className="text-xs font-bold text-slate-600">{c.name}</span>
                 </div>
               ))}
               {/* Duplicate set for seamless infinite loop */}
-              {[
-                { flag: "🇳🇬", name: "Nigeria" },
-                { flag: "🇬🇭", name: "Ghana" },
-                { flag: "🇰🇪", name: "Kenya" },
-                { flag: "🇸🇱", name: "Sierra Leone" },
-                { flag: "🇱🇷", name: "Liberia" }
-              ].map((c, idx) => (
+              {registeredCountries.map((c, idx) => (
                 <div key={`c2-${idx}`} className="flex items-center gap-2 bg-white px-4.5 py-2.5 rounded-xl border border-slate-100 shadow-xs mr-6 shrink-0 transition-transform hover:scale-105 duration-200">
-                  <span className="text-xl">{c.flag}</span>
+                  {c.logo ? (
+                    <img src={c.logo} alt={`${c.name} logo`} className="w-6 h-6 rounded-full object-cover" referrerPolicy="no-referrer" />
+                  ) : (
+                    <span className="text-xl">{c.flag}</span>
+                  )}
                   <span className="text-xs font-bold text-slate-600">{c.name}</span>
                 </div>
               ))}

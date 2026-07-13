@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthStore>()(
         id: "1",
         name: "Johnfavour",
         email: "johnfavour@laplume.africa",
-        country: "Nigeria",
+        country: "🇳🇬 Nigeria",
         school: "La Plume High School",
         cohortId: "cohort_1",
         level: 3,

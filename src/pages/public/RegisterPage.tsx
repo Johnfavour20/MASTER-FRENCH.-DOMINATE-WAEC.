@@ -12,7 +12,7 @@ export default function RegisterPage() {
       id: "1",
       name: name || "Johnfavour",
       email: `${name.toLowerCase()}@laplume.africa`,
-      country: "Nigeria",
+      country: "🇳🇬 Nigeria",
       school: "La Plume High School",
       cohortId: "cohort_1",
       level: 3,
