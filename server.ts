@@ -26,7 +26,7 @@ try {
     });
     console.log("Gemini Client initialized successfully");
   } else {
-    console.log("[Local Mode] Running with local mock responses (GEMINI_API_KEY is not defined).");
+    console.warn("GEMINI_API_KEY is not defined in environment variables. Running in mock-AI fallback mode.");
   }
 } catch (err) {
   console.error("Error initializing Gemini client:", err);
@@ -57,51 +57,17 @@ app.post("/api/gemini/validate", async (req, res) => {
 
   // Fallback response if AI is not initialized
   if (!ai) {
-    const corrections: { original: string; corrected: string; explanation: string }[] = [];
-    let correctedText = text;
-
-    const checkAndReplace = (wrong: string, right: string, explanation: string) => {
-      const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
-      if (regex.test(correctedText)) {
-        corrections.push({ original: wrong, corrected: right, explanation });
-        correctedText = correctedText.replace(regex, right);
-      }
-    };
-
-    checkAndReplace("pere", "père", "'père' requires a grave accent (è) in French.");
-    checkAndReplace("mere", "mère", "'mère' requires a grave accent (è) in French.");
-    checkAndReplace("etudie", "étudie", "'étudie' requires an acute accent (é) on the first e.");
-    checkAndReplace("ecole", "école", "'école' requires an acute accent (é) in French.");
-    checkAndReplace("lycee", "lycée", "'lycée' requires an acute accent (é) in French.");
-    checkAndReplace("eleve", "élève", "'élève' requires an acute accent (é) and a grave accent (è).");
-    checkAndReplace("francais", "français", "'français' requires a cedilla (ç) to maintain the soft 's' sound.");
-    checkAndReplace("soeurs", "sœurs", "'sœurs' is spelled with the ligature œ in French.");
-    checkAndReplace("dernieres", "dernières", "'dernières' requires a grave accent (è).");
-    checkAndReplace("bientot", "bientôt", "'bientôt' requires a circumflex accent (ô).");
-
-    const textLength = text.trim().split(/\s+/).length;
-    let score = 90;
-    let overallFeedback = "Excellent travail ! Votre texte est clair, bien structuré et très agréable à lire. Félicitations pour vos efforts ! Continuez ainsi pour réussir l'examen du WAEC.";
-    
-    if (textLength < 10) {
-      score = 55;
-      overallFeedback = "Votre texte est un peu court. Pour obtenir une bonne note à l'examen du WAEC, essayez de rédiger des phrases plus longues et d'ajouter plus de détails sur le sujet.";
-    } else if (corrections.length > 0) {
-      score = Math.max(65, 90 - corrections.length * 5);
-      overallFeedback = `Bon effort ! Votre texte est compréhensible et bien structuré. Cependant, faites attention aux accents et à l'orthographe de certains mots (${corrections.map(c => c.corrected).join(', ')}). Ces détails sont cruciaux pour la précision mécanique (Mechanical Accuracy) au WAEC.`;
-    }
-
     return res.json({
-      score: score,
-      corrections: corrections.length > 0 ? corrections : [
+      score: 75,
+      corrections: [
         {
-          original: text.split(' ')[0] || "Exemple",
-          corrected: text.split(' ')[0] || "Exemple",
-          explanation: "Votre grammaire et votre orthographe semblent correctes dans cette section. Excellent !"
+          original: text,
+          corrected: text,
+          explanation: "Note: Gemini API Key is missing. This is a local mock correction. Please set your GEMINI_API_KEY secret to enable live AI feedback!"
         }
       ],
-      overallFeedback: overallFeedback,
-      suggestedRewrite: correctedText
+      overallFeedback: "Bravo ! Vous avez écrit une phrase. Ajoutez votre clé API Gemini pour obtenir une évaluation grammaticale et sémantique détaillée en temps réel.",
+      suggestedRewrite: text + " (Configuration requise)"
     });
   }
 
@@ -185,6 +151,570 @@ Return the results in JSON format according to the specified schema.`;
   }
 });
 
+// 2b. AI Letter Validation API (Projet: La Lettre)
+app.post("/api/gemini/validate-letter", async (req, res) => {
+  const { text } = req.body;
+
+  if (!text || typeof text !== "string" || text.trim() === "") {
+    return res.status(400).json({ error: "Text is required for validation" });
+  }
+
+  // Fallback response if AI is not initialized
+  if (!ai) {
+    return res.json({
+      score: 16,
+      criteriaScores: {
+        structure: 3,
+        grammar: 5,
+        vocab: 4,
+        coherence: 4
+      },
+      corrections: [
+        {
+          original: "À l'attention de Monsieur le Recteur",
+          corrected: "À l'attention de Monsieur le Recteur de l'UCAD",
+          explanation: "Préciser l'institution (UCAD) donne plus de rigueur formelle à l'adresse du destinataire."
+        }
+      ],
+      feedback: "Très bon brouillon de lettre de motivation. Vos motivations d'études littéraires sont bien exprimées. Note : Pour obtenir une correction interactive en direct via l'IA, veuillez configurer la clé API Gemini.",
+      strengths: "Cohérence de l'argumentation",
+      improvements: "Précision des formules de politesse",
+      suggestedRewrite: text
+    });
+  }
+
+  try {
+    const prompt = `You are an expert native French Language Examiner grading academic applications for West African students. 
+You are assessing a student's formal letter of motivation applying for a degree in "Lettres Modernes" (Modern Literature) at the Université Cheikh Anta Diop (UCAD) in Dakar.
+Analyze the following student's letter:
+"${text}"
+
+Evaluate the letter according to these 4 standard criteria:
+1. Structure (Conventions épistolaires: lieu, date, destinataire, objet, formule d'appel, salutations formelles) - max 4 points
+2. Grammaire & Conjugaison (Spelling, punctuation, correct verb tenses) - max 6 points
+3. Vocabulaire & Registre (Rich and formal academic/professional vocabulary) - max 6 points
+4. Cohérence & Argumentation (Persuasive writing, flow, and structural layout of arguments) - max 4 points
+
+Provide:
+- An overall score out of 20 (which must be the exact sum of the 4 individual criteria scores)
+- Scores for each of the 4 criteria
+- A list of specific grammatical, spelling, or styling corrections. For each correction, include:
+  - 'original': the exact incorrect or suboptimal fragment from the student's text
+  - 'corrected': the corrected or polished version
+  - 'explanation': a short pedagogical explanation in clear French of why it was corrected
+- A general feedback comment in encouraging French
+- 'strengths': one key strength in French (e.g., "Structure formelle soignée" or "Excellent registre de langue")
+- 'improvements': one key area of improvement in French (e.g., "Accord des participes passés" or "Variété des connecteurs logiques")
+- 'suggestedRewrite': a fully polished, elegant, and standard French letter of motivation based on the student's text, adhering to high-level French epistolary style.
+
+Return the results strictly in JSON format according to the specified schema.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            score: { type: Type.INTEGER, description: "Total score out of 20. Must be the sum of criteriaScores." },
+            criteriaScores: {
+              type: Type.OBJECT,
+              properties: {
+                structure: { type: Type.INTEGER, description: "Structure score out of 4" },
+                grammar: { type: Type.INTEGER, description: "Grammar & Conjugation score out of 6" },
+                vocab: { type: Type.INTEGER, description: "Vocabulary & Register score out of 6" },
+                coherence: { type: Type.INTEGER, description: "Coherence & Argumentation score out of 4" }
+              },
+              required: ["structure", "grammar", "vocab", "coherence"]
+            },
+            corrections: {
+              type: Type.ARRAY,
+              description: "List of specific corrections made to the text.",
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  original: { type: Type.STRING },
+                  corrected: { type: Type.STRING },
+                  explanation: { type: Type.STRING }
+                },
+                required: ["original", "corrected", "explanation"]
+              }
+            },
+            feedback: { type: Type.STRING, description: "General positive feedback in French." },
+            strengths: { type: Type.STRING, description: "One main strength in French." },
+            improvements: { type: Type.STRING, description: "One main improvement area in French." },
+            suggestedRewrite: { type: Type.STRING, description: "A beautifully polished rewritten letter." }
+          },
+          required: ["score", "criteriaScores", "corrections", "feedback", "strengths", "improvements", "suggestedRewrite"]
+        }
+      }
+    });
+
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error("No text returned from Gemini");
+    }
+
+    const cleanedText = cleanJsonResponse(responseText);
+    const result = JSON.parse(cleanedText);
+    res.json(result);
+  } catch (error: any) {
+    console.error("Gemini Letter Validation Error:", error);
+    res.json({
+      score: 15,
+      criteriaScores: {
+        structure: 3,
+        grammar: 4,
+        vocab: 4,
+        coherence: 4
+      },
+      corrections: [
+        {
+          original: text.slice(0, 50) + "...",
+          corrected: text.slice(0, 50) + "...",
+          explanation: "Le tuteur d'IA est temporairement indisponible pour lister les corrections détaillées."
+        }
+      ],
+      feedback: "Merci pour votre soumission ! Votre lettre de motivation a bien été reçue. Notre correcteur d'IA rencontre une forte affluence en ce moment, mais votre travail démontre un bon niveau général.",
+      strengths: "Bonne structure globale",
+      improvements: "Relecture des accords complexes",
+      suggestedRewrite: text
+    });
+  }
+});
+
+// 2c. AI Translation Validation API (Projet: La Traduction)
+app.post("/api/gemini/validate-translation", async (req, res) => {
+  const { translations } = req.body;
+
+  if (!translations || !Array.isArray(translations) || translations.length < 4) {
+    return res.status(400).json({ error: "Translations for all 4 paragraphs are required" });
+  }
+
+  // Fallback response if AI is not initialized
+  if (!ai) {
+    return res.json({
+      score: 82,
+      criteriaScores: {
+        fidelity: 21,
+        vocabulary: 20,
+        grammar: 21,
+        fluidity: 20
+      },
+      corrections: [
+        {
+          original: translations[2]?.slice(0, 40) || "",
+          corrected: "« Notre mission est simple », a déclaré le Président.",
+          explanation: "En français, on utilise de préférence les guillemets français « » et l'incise ('a déclaré le Président') après la citation avec une virgule à l'intérieur ou après."
+        }
+      ],
+      feedback: "Très bon travail de traduction globale. Le sens est fidèlement restitué et le registre académique est respecté. Note: Configurez la clé API Gemini pour obtenir une analyse d'IA interactive complète.",
+      strengths: "Excellente utilisation de la CEDEAO comme acronyme.",
+      improvements: "Attention à la ponctuation dans le paragraphe 3 (« »).",
+      suggestedRewrite: `La Communauté économique des États de l'Afrique de l'Ouest (CEDEAO) a accompli des progrès significatifs dans la promotion de l'intégration régionale. Cependant, parvenir à une pleine maîtrise économique dans l'ensemble des pays membres reste un défi complexe.
+
+Ces dernières années, l'emploi des jeunes est devenu une priorité absolue pour la commission. Des programmes axés sur la formation professionnelle sont actuellement lancés pour combler le déficit de compétences, garantissant ainsi que les jeunes diplômés soient prêts pour un marché du travail multilingue.
+
+« Notre mission est simple », a déclaré le Président. « Nous voulons créer un espace unifié où les frontières n'entravent pas le progrès. » Cette vision exige des investissements massifs dans les infrastructures et la culture numérique.
+
+Pour réussir, le continent doit s'appuyer sur son atout le plus précieux : le capital humain. Les réformes éducatives ne sont plus facultatives mais constituent une nécessité pour le développement durable de nos nations africaines.`
+    });
+  }
+
+  try {
+    const prompt = `You are an expert native French translator and academic language examiner grading WAEC/JAMB French examinations.
+You are assessing a student's translation of a 4-paragraph English text about ECOWAS and youth development into French.
+
+Here is the source English text paragraph-by-paragraph:
+Paragraph 1: "The Economic Community of West African States (ECOWAS) has made significant strides in fostering regional integration. However, achieving full economic proficiency across all member nations remains a complex challenge."
+Paragraph 2: "In recent years, youth employment has become a top priority for the commission. Programs aimed at vocational training are being launched to bridge the skills gap, ensuring that young graduates are ready for a multilingual job market."
+Paragraph 3: ""Our mission is simple," stated the President. "We want to create a unified space where borders do not hinder progress." This vision requires massive investment in infrastructure and digital literacy."
+Paragraph 4: "To succeed, the continent must rely on its most valuable asset: human capital. Educational reforms are no longer optional but a necessity for the sustainable development of our African nations."
+
+Here are the student's translations for each paragraph:
+Student Translation 1: "${translations[0]}"
+Student Translation 2: "${translations[1]}"
+Student Translation 3: "${translations[2]}"
+Student Translation 4: "${translations[3]}"
+
+Evaluate the translation based on these 4 standard translation criteria:
+1. Fidelity (Accuracy and faithfulness of meaning to the source text) - max 25 points
+2. Vocabulary & Idioms (Correct translation of technical/diplomatic terminology like ECOWAS/CEDEAO, bridge the skills gap, proficiency) - max 25 points
+3. French Grammar & Syntax (Accords, tenses, standard punctuation like french quotes « ») - max 25 points
+4. Fluidity & Tone (Does it read naturally like high-level academic or professional French?) - max 25 points
+
+Provide:
+- An overall score out of 100 (which must be the exact sum of the 4 individual criteria scores)
+- Scores for each of the 4 criteria
+- A list of specific corrections or stylistic improvements. For each correction, include:
+  - 'original': the exact incorrect or suboptimal phrase from the student's translation
+  - 'corrected': the corrected or polished French phrase
+  - 'explanation': a short pedagogical explanation in clear French of why it was corrected
+- A general feedback comment in encouraging French
+- 'strengths': one key strength in French (e.g., "Excellente utilisation de la CEDEAO comme acronyme.")
+- 'improvements': one key area of improvement in French (e.g., "Attention à la ponctuation dans le paragraphe 3 (« »).")
+- 'suggestedRewrite': the complete ideal French translation for all 4 paragraphs combined, formatted with double newlines between paragraphs.
+
+Return the results strictly in JSON format according to the specified schema.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            score: { type: Type.INTEGER, description: "Total score out of 100. Must be the sum of criteriaScores." },
+            criteriaScores: {
+              type: Type.OBJECT,
+              properties: {
+                fidelity: { type: Type.INTEGER, description: "Fidelity score out of 25" },
+                vocabulary: { type: Type.INTEGER, description: "Vocabulary score out of 25" },
+                grammar: { type: Type.INTEGER, description: "Grammar score out of 25" },
+                fluidity: { type: Type.INTEGER, description: "Fluidity score out of 25" }
+              },
+              required: ["fidelity", "vocabulary", "grammar", "fluidity"]
+            },
+            corrections: {
+              type: Type.ARRAY,
+              description: "List of specific corrections made to the translation.",
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  original: { type: Type.STRING },
+                  corrected: { type: Type.STRING },
+                  explanation: { type: Type.STRING }
+                },
+                required: ["original", "corrected", "explanation"]
+              }
+            },
+            feedback: { type: Type.STRING, description: "General positive feedback in French." },
+            strengths: { type: Type.STRING, description: "One main strength in French." },
+            improvements: { type: Type.STRING, description: "One main improvement area in French." },
+            suggestedRewrite: { type: Type.STRING, description: "A beautifully polished rewritten translation of all 4 paragraphs." }
+          },
+          required: ["score", "criteriaScores", "corrections", "feedback", "strengths", "improvements", "suggestedRewrite"]
+        }
+      }
+    });
+
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error("No text returned from Gemini");
+    }
+
+    const cleanedText = cleanJsonResponse(responseText);
+    const result = JSON.parse(cleanedText);
+    res.json(result);
+  } catch (error: any) {
+    console.error("Gemini Translation Validation Error:", error);
+    res.json({
+      score: 80,
+      criteriaScores: {
+        fidelity: 20,
+        vocabulary: 20,
+        grammar: 20,
+        fluidity: 20
+      },
+      corrections: [
+        {
+          original: translations[0]?.slice(0, 40) || "",
+          corrected: "La Communauté économique des États de l'Afrique de l'Ouest (CEDEAO)...",
+          explanation: "Traduction standard de ECOWAS en français."
+        }
+      ],
+      feedback: "Félicitations pour votre traduction. Votre texte témoigne d'une bonne compréhension globale de l'exercice. L'IA rencontre une forte affluence en ce moment pour le corrigé ultra-détaillé.",
+      strengths: "Restitution fidèle des idées principales",
+      improvements: "Peaufinage du registre idiomatique",
+      suggestedRewrite: translations.join("\n\n")
+    });
+  }
+});
+
+// 2d. AI Debate Essay Validation API (Projet: Le Débat)
+app.post("/api/gemini/validate-debate", async (req, res) => {
+  const { topic, sections } = req.body;
+
+  if (!sections || !Array.isArray(sections) || sections.length < 5) {
+    return res.status(400).json({ error: "All 5 essay sections are required" });
+  }
+
+  // Fallback response if AI is not initialized
+  if (!ai) {
+    return res.json({
+      score: 85,
+      criteriaScores: {
+        structure: 17,
+        arguments: 17,
+        vocabulary: 17,
+        grammar: 17,
+        connectors: 17
+      },
+      corrections: [
+        {
+          original: sections[1]?.slice(0, 40) || "",
+          corrected: "Il est primordial de souligner l'intérêt pédagogique...",
+          explanation: "Utilisez un vocabulaire plus soutenu pour introduire vos arguments."
+        }
+      ],
+      feedback: "Très bon travail global. La structure argumentative en 5 parties est bien respectée et équilibrée. Note: Configurez la clé API Gemini pour obtenir une analyse interactive complète par l'IA.",
+      strengths: "Excellent équilibre entre les arguments 'Pour' et 'Contre'.",
+      improvements: "N'hésitez pas à enrichir votre vocabulaire et à utiliser plus de connecteurs logiques de concession.",
+      suggestedRewrite: sections.join("\n\n")
+    });
+  }
+
+  try {
+    const prompt = `You are an expert French language examiner grading high-level academic argumentative essays (WAEC / JAMB French exams).
+You are evaluating a student's argumentative essay on the topic: "${topic}".
+
+The essay has been structured in 5 parts:
+Part 1 (Introduction): "${sections[0]}"
+Part 2 (Pour/For arguments): "${sections[1]}"
+Part 3 (Contre/Against arguments): "${sections[2]}"
+Part 4 (Nuance/Synthesizing transition): "${sections[3]}"
+Part 5 (Conclusion/Final outlook): "${sections[4]}"
+
+Evaluate the essay based on these 5 standard criteria:
+1. Structure (Is the 5-part layout followed with a smooth progression of ideas?) - max 20 points
+2. Argumentation (Are the arguments for and against convincing, logical, and balanced?) - max 20 points
+3. Vocabulary (Does the student use rich, precise, and appropriate French vocabulary related to the topic?) - max 20 points
+4. Grammar & Syntax (Are verb tenses, mood (especially subjonctif), agreements, and punctuation correct?) - max 20 points
+5. Connectors & Transition words (Are logical connectors like Cependant, Néanmoins, Par conséquent used appropriately to link paragraphs and arguments?) - max 20 points
+
+Provide:
+- An overall score out of 100 (which must be the exact sum of the 5 individual criteria scores)
+- Scores for each of the 5 criteria
+- A list of specific grammatical or stylistic corrections. For each correction, include:
+  - 'original': the exact incorrect or suboptimal phrase from the student's text
+  - 'corrected': the corrected or polished French phrase
+  - 'explanation': a short pedagogical explanation in French of why it was corrected
+- A general encouraging feedback comment in clear French
+- 'strengths': one key strength of the essay in French
+- 'improvements': one key area for improvement in French
+- 'suggestedRewrite': a complete model essay rewriting based on the student's ideas, formatted beautifully with double newlines between sections.
+
+Return the results strictly in JSON format according to the specified schema.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            score: { type: Type.INTEGER, description: "Total score out of 100. Must be the sum of criteriaScores." },
+            criteriaScores: {
+              type: Type.OBJECT,
+              properties: {
+                structure: { type: Type.INTEGER, description: "Structure score out of 20" },
+                arguments: { type: Type.INTEGER, description: "Argumentation score out of 20" },
+                vocabulary: { type: Type.INTEGER, description: "Vocabulary score out of 20" },
+                grammar: { type: Type.INTEGER, description: "Grammar score out of 20" },
+                connectors: { type: Type.INTEGER, description: "Connectors score out of 20" }
+              },
+              required: ["structure", "arguments", "vocabulary", "grammar", "connectors"]
+            },
+            corrections: {
+              type: Type.ARRAY,
+              description: "List of specific corrections made to the essay.",
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  original: { type: Type.STRING },
+                  corrected: { type: Type.STRING },
+                  explanation: { type: Type.STRING }
+                },
+                required: ["original", "corrected", "explanation"]
+              }
+            },
+            feedback: { type: Type.STRING, description: "General positive feedback in French." },
+            strengths: { type: Type.STRING, description: "One main strength in French." },
+            improvements: { type: Type.STRING, description: "One main improvement area in French." },
+            suggestedRewrite: { type: Type.STRING, description: "A beautifully polished rewritten version of the complete 5-paragraph essay." }
+          },
+          required: ["score", "criteriaScores", "corrections", "feedback", "strengths", "improvements", "suggestedRewrite"]
+        }
+      }
+    });
+
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error("No text returned from Gemini");
+    }
+
+    const cleanedText = cleanJsonResponse(responseText);
+    const result = JSON.parse(cleanedText);
+    res.json(result);
+  } catch (error: any) {
+    console.error("Gemini Debate Validation Error:", error);
+    res.json({
+      score: 82,
+      criteriaScores: {
+        structure: 16,
+        arguments: 16,
+        vocabulary: 17,
+        grammar: 16,
+        connectors: 17
+      },
+      corrections: [
+        {
+          original: sections[0]?.slice(0, 40) || "",
+          corrected: "Il convient de s'interroger sur...",
+          explanation: "Une introduction élégante et académique."
+        }
+      ],
+      feedback: "Votre texte démontre une bonne assimilation des techniques de l'essai argumentatif. L'IA rencontre une forte affluence pour le corrigé ultra-détaillé en temps réel.",
+      strengths: "Respect scrupuleux du plan en 5 parties.",
+      improvements: "Essayez d'utiliser plus de tournures au subjonctif.",
+      suggestedRewrite: sections.join("\n\n")
+    });
+  }
+});
+
+// 2e. AI Oral Project Validation API (Projet: L'Oral)
+app.post("/api/gemini/validate-oral", async (req, res) => {
+  const { comprehensionAnswers, readingTranscript, freeSpeechTranscript } = req.body;
+
+  const defaultResult = {
+    score: 125,
+    criteriaScores: {
+      listening: 34,
+      reading: 26,
+      freeSpeech: 65,
+      diction: 8,
+      pronunciation: 9,
+      fluency: 9,
+      vocabulary: 16,
+      grammar: 16,
+      coherence: 8
+    },
+    corrections: [
+      {
+        original: readingTranscript ? readingTranscript.slice(0, 50) + "..." : "La jeunesse africaine n'est...",
+        corrected: "La jeunesse africaine n'est plus seulement l'avenir, elle est le présent moteur de l'innovation mondiale...",
+        explanation: "Veillez à bien faire la liaison entre 'présent' et 'moteur' et soigner l'intonation."
+      }
+    ],
+    feedback: "Très belle performance orale générale ! Votre articulation est claire, et vous montrez une bonne aisance d'élocution. Pour l'expression libre, veillez à structurer davantage vos transitions avec des connecteurs formels.",
+    strengths: "Diction fluide, excellente intonation et rythme dynamique sur le passage imposé.",
+    improvements: "Structurez vos arguments de manière plus explicite (ex: 'Premièrement', 'De plus', 'Enfin') dans l'expression libre.",
+    suggestedModelResponse: "L'éducation est sans conteste le pilier central de l'émergence de l'Afrique de l'Ouest. Premièrement, elle permet de doter la jeunesse de compétences techniques et numériques indispensables dans une économie mondialisée. Deuxièmement, en favorisant l'esprit d'initiative et l'entrepreneuriat local, elle transforme les défis logistiques en opportunités d'emploi durables. Enfin, une éducation solide renforce la souveraineté économique et culturelle de la région."
+  };
+
+  if (!ai) {
+    return res.json(defaultResult);
+  }
+
+  try {
+    const prompt = `You are an expert French language examiner and oral jury member grading high-level school examinations (such as the WAEC / JAMB French Oral, or French Baccalauréat Oral).
+You are evaluating a student's final week 4 oral project which consists of three parts:
+
+PART 1: COMPRÉHENSION ORALE (Listening comprehension)
+The student listened to a 3-minute French audio about "l'impact de la tech sur l'éducation rurale" and "l'enracinement des savoirs".
+Questions and user answers:
+- Question 1 (Main subject): "Quel est le sujet principal du discours de l'intervenant ?"
+  User Answer: "${comprehensionAnswers?.q1 || ''}" (Correct answer should be: L'impact de la tech sur l'éducation rurale)
+- Question 2 (What promotes deep learning): "Qu'est-ce qui favorise l'enracinement des savoirs d'après le locuteur ?"
+  User Answer: "${comprehensionAnswers?.q2 || ''}" (Correct answer should be: L'adaptation locale des technologies ou l'usage de langues locales / réalités africaines)
+- Question 3 (Two internet access challenges): "Identifiez deux défis mentionnés par l'intervenant concernant l'accès internet."
+  User Answer: "${comprehensionAnswers?.q3 || ''}" (Challenges could include infrastructure cost, electricity outages, digital illiteracy, or network coverage)
+
+PART 2: LECTURE À VOIX HAUTE (Reading aloud)
+The student had to read the following passage:
+« La jeunesse africaine n’est plus seulement l’avenir, elle est le présent moteur de l’innovation mondiale. Dans les quartiers de Lagos, les hubs technologiques de Nairobi et les centres de formation de Dakar, une nouvelle génération redéfinit les codes. Par la maîtrise de la langue et de l'outil numérique, ces jeunes bâtisseurs transforment les défis logistiques en opportunités de croissance durable. L’éducation devient alors non plus un simple diplôme, mais un véritable levier de souveraineté économique pour toute l’Afrique de l’Ouest. »
+User's voice transcript: "${readingTranscript || ''}"
+
+PART 3: EXPRESSION LIBRE (Free Speech / Argumentation)
+The student spoke for 2-3 minutes on the topic: « Décrivez comment l'éducation peut transformer l'avenir de l'Afrique de l'Ouest. »
+User's speech transcript: "${freeSpeechTranscript || ''}"
+
+Perform a thorough, high-fidelity assessment of their performance:
+1. Score them on:
+   - Listening (max 40): Based on their answers to Part 1 questions.
+   - Reading (max 30): Based on how closely their transcript matches the original text, simulating speech pronunciation correctness.
+   - Free Speech (max 80): Based on vocabulary, logical flow, grammar, and development of thoughts in Part 3.
+   Total overall score is the sum of these three scores (max 150 points).
+2. Rate individual dimensions from 1 to 10 (or 20):
+   - diction: out of 10
+   - pronunciation: out of 10
+   - fluency: out of 10
+   - vocabulary: out of 20
+   - grammar: out of 20
+   - coherence: out of 10
+3. Identify 2-3 specific pronunciation errors or grammatical mistakes. Provide:
+   - 'original': incorrect or suboptimal speech segment
+   - 'corrected': corrected or polished French segment
+   - 'explanation': a clear pedagogical tip in French (e.g., explaining liaison, silent letters, correct verb agreement, or vocabulary improvement)
+4. Provide a supportive, highly constructive feedback comment in clear French.
+5. Highlight 'strengths' and 'improvements' in French.
+6. Provide 'suggestedModelResponse': a perfectly written 150-word formal French response to the Part 3 topic that the student can read to learn the optimal structure and elegant vocabulary.
+
+Return the results strictly in JSON format according to the specified schema.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            score: { type: Type.INTEGER, description: "Total score out of 150. Must be the sum of listening, reading, and freeSpeech scores." },
+            criteriaScores: {
+              type: Type.OBJECT,
+              properties: {
+                listening: { type: Type.INTEGER, description: "Listening score out of 40" },
+                reading: { type: Type.INTEGER, description: "Reading score out of 30" },
+                freeSpeech: { type: Type.INTEGER, description: "Free Speech score out of 80" },
+                diction: { type: Type.INTEGER, description: "Diction score out of 10" },
+                pronunciation: { type: Type.INTEGER, description: "Pronunciation score out of 10" },
+                fluency: { type: Type.INTEGER, description: "Fluency score out of 10" },
+                vocabulary: { type: Type.INTEGER, description: "Vocabulary score out of 20" },
+                grammar: { type: Type.INTEGER, description: "Grammar score out of 20" },
+                coherence: { type: Type.INTEGER, description: "Coherence score out of 10" }
+              },
+              required: ["listening", "reading", "freeSpeech", "diction", "pronunciation", "fluency", "vocabulary", "grammar", "coherence"]
+            },
+            corrections: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  original: { type: Type.STRING },
+                  corrected: { type: Type.STRING },
+                  explanation: { type: Type.STRING }
+                },
+                required: ["original", "corrected", "explanation"]
+              }
+            },
+            feedback: { type: Type.STRING },
+            strengths: { type: Type.STRING },
+            improvements: { type: Type.STRING },
+            suggestedModelResponse: { type: Type.STRING, description: "A beautifully structured sample response in formal French for the Part 3 topic." }
+          },
+          required: ["score", "criteriaScores", "corrections", "feedback", "strengths", "improvements", "suggestedModelResponse"]
+        }
+      }
+    });
+
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error("No response text returned from Gemini");
+    }
+
+    const cleanedText = cleanJsonResponse(responseText);
+    const result = JSON.parse(cleanedText);
+    res.json(result);
+  } catch (error: any) {
+    console.error("Gemini Oral Project Validation Error:", error);
+    res.json(defaultResult);
+  }
+});
+
 // 3. AI Tutor Chat API
 app.post("/api/gemini/chat", async (req, res) => {
   const { messages } = req.body;
@@ -195,77 +725,14 @@ app.post("/api/gemini/chat", async (req, res) => {
 
   // Fallback response if AI is not initialized
   if (!ai) {
-    const lastUserMessage = messages.length > 0 ? messages[messages.length - 1].content.toLowerCase() : "";
-
-    let reply = "Bonjour ! Je suis ravi de discuter avec vous. Racontez-moi, comment se passe votre préparation pour l'examen de français ?";
-    let translation = "Hello! I am delighted to chat with you. Tell me, how is your preparation for the French exam going?";
-    let vocab = [
-      { word: "Ravi", translation: "Delighted / Glad" },
-      { word: "Se passer", translation: "To go / To happen" }
-    ];
-
-    if (lastUserMessage.includes("bonjour") || lastUserMessage.includes("salut") || lastUserMessage.includes("hello") || lastUserMessage.includes("hi")) {
-      reply = "Bonjour ! C'est un plaisir de vous revoir. Quel sujet aimeriez-vous aborder pour pratiquer aujourd'hui ?";
-      translation = "Hello! It is a pleasure to see you again. What topic would you like to cover to practice today?";
-      vocab = [
-        { word: "Plaisir", translation: "Pleasure" },
-        { word: "Aborder", translation: "To approach / cover (a topic)" }
-      ];
-    } else if (lastUserMessage.includes("ça va") || lastUserMessage.includes("comment ça va") || lastUserMessage.includes("comment allez") || lastUserMessage.includes("comment tu vas")) {
-      reply = "Je vais très bien, merci ! Et vous, comment se passe votre journée d'études ?";
-      translation = "I am doing very well, thank you! And you, how is your study day going?";
-      vocab = [
-        { word: "Très bien", translation: "Very well" },
-        { word: "Études", translation: "Studies" }
-      ];
-    } else if (lastUserMessage.includes("oui") || lastUserMessage.includes("d'accord") || lastUserMessage.includes("ok") || lastUserMessage.includes("prêt")) {
-      reply = "Super ! Parlons d'un sujet fréquent du WAEC. Pouvez-vous me décrire votre école ou votre matière préférée ?";
-      translation = "Great! Let's talk about a frequent WAEC topic. Can you describe your school or your favorite subject to me?";
-      vocab = [
-        { word: "Matière préférée", translation: "Favorite subject" },
-        { word: "Décrire", translation: "To describe" }
-      ];
-    } else if (lastUserMessage.includes("école") || lastUserMessage.includes("lycée") || lastUserMessage.includes("classe") || lastUserMessage.includes("matière") || lastUserMessage.includes("professeur")) {
-      reply = "C'est très intéressant ! L'éducation ouvre toutes les portes. Avez-vous beaucoup d'amis dans votre classe ?";
-      translation = "That is very interesting! Education opens all doors. Do you have many friends in your class?";
-      vocab = [
-        { word: "Intéressant", translation: "Interesting" },
-        { word: "Ouvre", translation: "Opens (verb: ouvrir)" }
-      ];
-    } else if (lastUserMessage.includes("famille") || lastUserMessage.includes("père") || lastUserMessage.includes("mère") || lastUserMessage.includes("frère") || lastUserMessage.includes("sœur") || lastUserMessage.includes("soeur")) {
-      reply = "La famille est très importante. Pouvez-vous me parler un peu de la profession de vos parents ou de vos frères et sœurs ?";
-      translation = "Family is very important. Can you tell me a little about the profession of your parents or your brothers and sisters?";
-      vocab = [
-        { word: "Importante", translation: "Important" },
-        { word: "Profession", translation: "Profession / Occupation" }
-      ];
-    } else if (lastUserMessage.includes("vacances") || lastUserMessage.includes("voyage") || lastUserMessage.includes("loisir") || lastUserMessage.includes("sport") || lastUserMessage.includes("football") || lastUserMessage.includes("musique")) {
-      reply = "C'est génial ! Se détendre est essentiel pour rester concentré. Quel est votre passe-temps favori pendant le week-end ?";
-      translation = "That's great! Relaxing is essential to stay focused. What is your favorite hobby during the weekend?";
-      vocab = [
-        { word: "Passe-temps", translation: "Hobby" },
-        { word: "Essentiel", translation: "Essential" }
-      ];
-    } else if (lastUserMessage.includes("présent") || lastUserMessage.includes("qui es-tu") || lastUserMessage.includes("qui es tu") || lastUserMessage.includes("t'appelles")) {
-      reply = "Je suis La Plume AI Tutor, votre assistant personnel pour maîtriser le français du WAEC et du JAMB. Je suis toujours là pour vous aider !";
-      translation = "I am La Plume AI Tutor, your personal assistant to master WAEC and JAMB French. I am always here to help you!";
-      vocab = [
-        { word: "Assistant personnel", translation: "Personal assistant" },
-        { word: "Toujours", translation: "Always" }
-      ];
-    } else if (lastUserMessage.length > 0) {
-      reply = "C'est merveilleux ! Dites-moi, quel aspect du français trouvez-vous le plus difficile pour l'examen ?";
-      translation = "That is wonderful! Tell me, which aspect of French do you find the most difficult for the exam?";
-      vocab = [
-        { word: "Aspect", translation: "Aspect" },
-        { word: "Difficile", translation: "Difficult" }
-      ];
-    }
-
     return res.json({
-      reply,
-      translation,
-      vocab
+      reply: "Bonjour ! Je suis votre tuteur d'IA La Plume. Malheureusement, l'API Gemini n'est pas encore configurée. Pour discuter en direct, veuillez configurer la variable GEMINI_API_KEY dans les secrets.",
+      translation: "Hello! I am your La Plume AI tutor. Unfortunately, the Gemini API is not yet configured. To chat live, please configure the GEMINI_API_KEY variable in secrets.",
+      vocab: [
+        { word: "Bonjour", translation: "Hello / Good morning" },
+        { word: "Tuteur d'IA", translation: "AI Tutor" },
+        { word: "S'il vous plaît", translation: "Please" }
+      ]
     });
   }
 

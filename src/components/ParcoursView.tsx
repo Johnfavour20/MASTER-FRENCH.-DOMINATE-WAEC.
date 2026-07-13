@@ -4,11 +4,10 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { 
   GraduationCap, Star, Play, Lock, Settings, Bell, ChevronRight, Sparkles,
   Mic, Trophy, BookOpen, Compass, Award, Activity, Heart, ArrowLeft, Check,
-  Volume2, CheckCircle2, MessageSquare, Flag, Mail, Newspaper, FileEdit, X, Shield
+  Volume2, CheckCircle2, MessageSquare, Flag, Mail, Newspaper, FileEdit, X, Shield, Menu
 } from "lucide-react";
 
 interface ParcoursViewProps {
@@ -17,7 +16,6 @@ interface ParcoursViewProps {
   setCurrentView: (view: string) => void;
   isPremium?: boolean;
   defaultTab?: "roadmap" | "stats";
-  hideSidebar?: boolean;
 }
 
 interface NodeInfo {
@@ -36,10 +34,16 @@ export default function ParcoursView({
   userStreak, 
   setCurrentView,
   isPremium = false,
-  defaultTab = "roadmap",
-  hideSidebar = false
+  defaultTab = "roadmap"
 }: ParcoursViewProps) {
   const [localXP, setLocalXP] = useState(userXP);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  }, []);
   const [selectedNode, setSelectedNode] = useState<NodeInfo | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [activeTab, setActiveTab] = useState<"roadmap" | "stats">(defaultTab);
@@ -116,7 +120,6 @@ export default function ParcoursView({
     { id: "parcours", label: "Parcours", icon: Award, active: true },
     { id: "courses", label: "Mes Cours", icon: BookOpen },
     { id: "blitz", label: "Le Blitz", icon: Play },
-    { id: "exams", label: "Examens du Vendredi", icon: Shield },
     { id: "leaderboard", label: "Classement", icon: Trophy },
     { id: "progression", label: "Ma Progression", icon: Activity },
     { id: "badges", label: "Mes Badges", icon: Star },
@@ -323,7 +326,7 @@ export default function ParcoursView({
       id: "p4",
       title: "Projet: L'Oral",
       score: "",
-      status: "Locked",
+      status: "En cours",
       description: "Présentez un exposé de 5 minutes devant notre jury vocal IA et recevez une note globale de fluidité.",
       type: "project",
       icon: Mic
@@ -346,15 +349,6 @@ export default function ParcoursView({
 
   const closePopup = () => {
     setShowPopup(false);
-  };
-
-  const navigate = useNavigate();
-
-  // Helper function to navigate to lesson page
-  const handleStartLesson = (lessonId: string) => {
-    // Extract number from lesson ID (e.g., "l1" -> "1")
-    const lessonNumber = lessonId.replace(/[^0-9]/g, '');
-    navigate(`/lesson/${lessonNumber}`);
   };
 
   // Lesson interactive flow questions
@@ -391,12 +385,25 @@ export default function ParcoursView({
   return (
     <div className="w-full min-h-screen bg-[#fcfcfd] text-slate-800 flex font-sans antialiased selection:bg-blue-600 selection:text-white">
       
-      {!hideSidebar && (
-        <aside className="w-64 border-r border-slate-100 bg-white flex flex-col justify-between shrink-0 sticky top-0 h-screen hidden md:flex transition-all">
-          <div className="p-6">
-            {/* Logo with Cap Icon */}
+      {/* Mobile Sidebar Backdrop Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-35 md:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* 1. Side Navigation Rail */}
+      <aside className={`border-r border-slate-100 bg-white flex flex-col justify-between shrink-0 fixed md:sticky left-0 top-0 h-screen z-40 transition-all duration-300 ${
+        isSidebarOpen 
+          ? "w-64 translate-x-0 opacity-100" 
+          : "w-0 -translate-x-full md:translate-x-0 md:opacity-0 md:w-0 overflow-hidden border-r-0 pointer-events-none"
+      }`}>
+        <div className="p-6">
+          {/* Logo with Cap Icon */}
+          <div className="flex items-center justify-between mb-8">
             <div 
-              className="flex items-center gap-3 cursor-pointer group mb-8"
+              className="flex items-center gap-3 cursor-pointer group"
               onClick={() => setCurrentView("landing")}
             >
               <div className="bg-[#002B5B] p-1.5 rounded-xl text-white group-hover:bg-blue-800 transition-all shadow-md shrink-0">
@@ -411,62 +418,74 @@ export default function ParcoursView({
                 </span>
               </div>
             </div>
-
-            {/* Navigation Items */}
-            <nav className="space-y-1">
-              {sidebarItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = 
-                  (item.id === "parcours" && activeTab === "roadmap") || 
-                  (item.id === "progression" && activeTab === "stats");
-                return (
-                  <button
-                    key={item.id}
-                    id={`sidebar-item-${item.id}`}
-                    onClick={() => {
-                      if (item.id === "dashboard") {
-                        setCurrentView("dashboard");
-                      } else if (item.id === "blitz") {
-                        setCurrentView("blitz");
-                      } else if (item.id === "exams") {
-                        setCurrentView("exams");
-                      } else if (item.id === "parcours") {
-                        setActiveTab("roadmap");
-                      } else if (item.id === "progression") {
-                        setActiveTab("stats");
-                      }
-                    }}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      isActive 
-                        ? "bg-blue-50 text-blue-700 border border-blue-100" 
-                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : ""}`} />
-                      <span>{item.label}</span>
-                    </div>
-                    {item.id === "exams" && (
-                      <span className="bg-rose-500/15 text-rose-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded-sm border border-rose-500/25">IA</span>
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Sidebar Footer Settings */}
-          <div className="p-6 border-t border-slate-100">
             <button 
-              onClick={() => setCurrentView("dashboard")}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all cursor-pointer"
+              onClick={() => setIsSidebarOpen(false)}
+              className="md:hidden p-1 rounded-lg hover:bg-slate-50 transition-colors"
             >
-              <Settings className="w-4 h-4" />
-              <span>Paramètres</span>
+              <ArrowLeft className="w-4 h-4 text-slate-500" />
             </button>
           </div>
-        </aside>
-      )}
+
+          {/* Navigation Items */}
+          <nav className="space-y-1">
+            {sidebarItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = 
+                (item.id === "parcours" && activeTab === "roadmap") || 
+                (item.id === "progression" && activeTab === "stats");
+              return (
+                <button
+                  key={item.id}
+                  id={`sidebar-item-${item.id}`}
+                  onClick={() => {
+                    if (item.id === "dashboard") {
+                      setCurrentView("dashboard");
+                    } else if (item.id === "blitz") {
+                      setCurrentView("blitz");
+                    } else if (item.id === "exams") {
+                      setCurrentView("exams");
+                    } else if (item.id === "leaderboard") {
+                      setCurrentView("ranking");
+                    } else if (item.id === "badges" || item.id === "certificate") {
+                      setCurrentView("profile");
+                    } else if (item.id === "courses") {
+                      setCurrentView("mes-cours");
+                    } else if (item.id === "parcours") {
+                      setActiveTab("roadmap");
+                    } else if (item.id === "progression") {
+                      setActiveTab("stats");
+                    }
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    isActive 
+                      ? "bg-blue-50 text-blue-700 border border-blue-100" 
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : ""}`} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.id === "exams" && (
+                    <span className="bg-rose-500/15 text-rose-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded-sm border border-rose-500/25">IA</span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Sidebar Footer Settings */}
+        <div className="p-6 border-t border-slate-100">
+          <button 
+            onClick={() => setCurrentView("dashboard")}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all cursor-pointer"
+          >
+            <Settings className="w-4 h-4" />
+            <span>Paramètres</span>
+          </button>
+        </div>
+      </aside>
 
       {/* 2. Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen relative overflow-hidden">
@@ -475,11 +494,11 @@ export default function ParcoursView({
         <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-100 px-8 py-4 h-16 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-4">
             <button 
-              onClick={() => setCurrentView("dashboard")}
-              className="md:hidden p-1.5 bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-700 cursor-pointer"
-              title="Retour au Tableau de Bord"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-1.5 bg-slate-50 border border-slate-100 rounded-lg hover:bg-slate-100 text-slate-700 cursor-pointer shrink-0"
+              title="Menu principal"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <Menu className="w-4 h-4" />
             </button>
             <span className="font-display font-black text-lg text-[#002B5B] tracking-tight">
               La Plume Africa
@@ -1231,8 +1250,20 @@ export default function ParcoursView({
                 <button
                   onClick={() => {
                     setShowPopup(false);
-                    if (selectedNode.id.startsWith("l")) {
-                      handleStartLesson(selectedNode.id);
+                    if (selectedNode.id === "l1") {
+                      setCurrentView("lesson-viewer");
+                    } else if (selectedNode.id === "p1") {
+                      setCurrentView("la-lettre");
+                    } else if (selectedNode.id === "p2") {
+                      setCurrentView("la-traduction");
+                    } else if (selectedNode.id === "p3") {
+                      setCurrentView("la-debat");
+                    } else if (selectedNode.id === "p4") {
+                      setCurrentView("la-oral");
+                    } else if (selectedNode.id.startsWith("cp")) {
+                      localStorage.setItem("active_checkpoint_exam", selectedNode.id);
+                      localStorage.setItem("active_checkpoint_title", selectedNode.title);
+                      setCurrentView("exams");
                     } else {
                       startLesson();
                     }
@@ -1247,8 +1278,20 @@ export default function ParcoursView({
                 <button
                   onClick={() => {
                     setShowPopup(false);
-                    if (selectedNode.id.startsWith("l")) {
-                      handleStartLesson(selectedNode.id);
+                    if (selectedNode.id === "l1") {
+                      setCurrentView("lesson-viewer");
+                    } else if (selectedNode.id === "p1") {
+                      setCurrentView("la-lettre");
+                    } else if (selectedNode.id === "p2") {
+                      setCurrentView("la-traduction");
+                    } else if (selectedNode.id === "p3") {
+                      setCurrentView("la-debat");
+                    } else if (selectedNode.id === "p4") {
+                      setCurrentView("la-oral");
+                    } else if (selectedNode.id.startsWith("cp")) {
+                      localStorage.setItem("active_checkpoint_exam", selectedNode.id);
+                      localStorage.setItem("active_checkpoint_title", selectedNode.title);
+                      setCurrentView("exams");
                     } else {
                       startLesson();
                     }
@@ -1263,8 +1306,20 @@ export default function ParcoursView({
                 <button
                   onClick={() => {
                     setShowPopup(false);
-                    if (selectedNode.id.startsWith("l")) {
-                      handleStartLesson(selectedNode.id);
+                    if (selectedNode.id === "l1") {
+                      setCurrentView("lesson-viewer");
+                    } else if (selectedNode.id === "p1") {
+                      setCurrentView("la-lettre");
+                    } else if (selectedNode.id === "p2") {
+                      setCurrentView("la-traduction");
+                    } else if (selectedNode.id === "p3") {
+                      setCurrentView("la-debat");
+                    } else if (selectedNode.id === "p4") {
+                      setCurrentView("la-oral");
+                    } else if (selectedNode.id.startsWith("cp")) {
+                      localStorage.setItem("active_checkpoint_exam", selectedNode.id);
+                      localStorage.setItem("active_checkpoint_title", selectedNode.title);
+                      setCurrentView("exams");
                     } else {
                       startLesson();
                     }

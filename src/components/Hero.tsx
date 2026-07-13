@@ -9,7 +9,6 @@ import {
   Sparkles, Award, ArrowRight, ShieldCheck, PlayCircle, Globe, GraduationCap,
   Trophy, Check, X, Headphones, Volume2, Calendar, ShieldAlert, Video, FileCheck
 } from "lucide-react";
-import studentImage from '../assets/images/african_student_french_1783188944951.jpg';
 
 interface HeroProps {
   setCurrentView: (view: string) => void;
@@ -291,7 +290,7 @@ export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
               {/* Main Rounded Image */}
               <div className="relative rounded-3xl overflow-hidden border-[12px] border-white shadow-2xl aspect-square bg-slate-100">
                 <img 
-                  src={studentImage}
+                  src="/src/assets/images/african_student_french_1783188944951.jpg" 
                   alt="Smiling African Student" 
                   className="w-full h-full object-cover transform hover:scale-105 transition-all duration-700"
                   referrerPolicy="no-referrer"
@@ -390,27 +389,27 @@ export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
             
             <div className="animate-marquee flex whitespace-nowrap py-1">
               {[
-                { code: "ng", name: "Nigeria" },
-                { code: "gh", name: "Ghana" },
-                { code: "ke", name: "Kenya" },
-                { code: "sl", name: "Sierra Leone" },
-                { code: "lr", name: "Liberia" }
+                { flag: "🇳🇬", name: "Nigeria" },
+                { flag: "🇬🇭", name: "Ghana" },
+                { flag: "🇰🇪", name: "Kenya" },
+                { flag: "🇸🇱", name: "Sierra Leone" },
+                { flag: "🇱🇷", name: "Liberia" }
               ].map((c, idx) => (
-                <div key={`c1-${idx}`} className="flex items-center gap-2.5 bg-white px-4.5 py-2.5 rounded-xl border border-slate-100 shadow-xs mr-6 shrink-0 transition-transform hover:scale-105 duration-200">
-                  <img src={`https://flagcdn.com/w40/${c.code}.png`} alt={c.name} className="w-5 h-3.5 object-cover rounded-xs" />
+                <div key={`c1-${idx}`} className="flex items-center gap-2 bg-white px-4.5 py-2.5 rounded-xl border border-slate-100 shadow-xs mr-6 shrink-0 transition-transform hover:scale-105 duration-200">
+                  <span className="text-xl">{c.flag}</span>
                   <span className="text-xs font-bold text-slate-600">{c.name}</span>
                 </div>
               ))}
               {/* Duplicate set for seamless infinite loop */}
               {[
-                { code: "ng", name: "Nigeria" },
-                { code: "gh", name: "Ghana" },
-                { code: "ke", name: "Kenya" },
-                { code: "sl", name: "Sierra Leone" },
-                { code: "lr", name: "Liberia" }
+                { flag: "🇳🇬", name: "Nigeria" },
+                { flag: "🇬🇭", name: "Ghana" },
+                { flag: "🇰🇪", name: "Kenya" },
+                { flag: "🇸🇱", name: "Sierra Leone" },
+                { flag: "🇱🇷", name: "Liberia" }
               ].map((c, idx) => (
-                <div key={`c2-${idx}`} className="flex items-center gap-2.5 bg-white px-4.5 py-2.5 rounded-xl border border-slate-100 shadow-xs mr-6 shrink-0 transition-transform hover:scale-105 duration-200">
-                  <img src={`https://flagcdn.com/w40/${c.code}.png`} alt={c.name} className="w-5 h-3.5 object-cover rounded-xs" />
+                <div key={`c2-${idx}`} className="flex items-center gap-2 bg-white px-4.5 py-2.5 rounded-xl border border-slate-100 shadow-xs mr-6 shrink-0 transition-transform hover:scale-105 duration-200">
+                  <span className="text-xl">{c.flag}</span>
                   <span className="text-xs font-bold text-slate-600">{c.name}</span>
                 </div>
               ))}
@@ -654,11 +653,11 @@ export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
               
               <div className="space-y-2">
                 {[
-                  { rank: 1, name: "Kofi Mensah", code: "gh", country: "Ghana", xp: 1420 },
-                  { rank: 2, name: "Amina Bello", code: "ng", country: "Nigeria", xp: 1310 },
-                  { rank: 3, name: "Kwame Appiah", code: "gh", country: "Ghana", xp: 1240 },
-                  { rank: 4, name: "Amara Temi", code: "ng", country: "Nigeria", xp: amaraXP, isCurrentUser: true },
-                  { rank: 5, name: "Femi Olatunji", code: "ng", country: "Nigeria", xp: 1150 }
+                  { rank: 1, name: "Kofi Mensah", country: "🇬🇭 Ghana", xp: 1420 },
+                  { rank: 2, name: "Amina Bello", country: "🇳🇬 Nigeria", xp: 1310 },
+                  { rank: 3, name: "Kwame Appiah", country: "🇬🇭 Ghana", xp: 1240 },
+                  { rank: 4, name: "Amara Temi", country: "🇳🇬 Nigeria", xp: amaraXP, isCurrentUser: true },
+                  { rank: 5, name: "Femi Olatunji", country: "🇳🇬 Nigeria", xp: 1150 }
                 ].map((student, sidx) => {
                   return (
                     <div 
@@ -679,10 +678,7 @@ export default function Hero({ setCurrentView, openSignupModal }: HeroProps) {
                           <span className="text-xs font-extrabold block leading-tight">
                             {student.name} {student.isCurrentUser && "👑"}
                           </span>
-                          <span className="text-[9px] text-slate-400 flex items-center gap-1.5 font-semibold">
-                            <img src={`https://flagcdn.com/w20/${student.code}.png`} alt={student.country} className="w-3.5 h-2.5 object-cover rounded-xs" />
-                            {student.country}
-                          </span>
+                          <span className="text-[9px] text-slate-400 block font-semibold">{student.country}</span>
                         </div>
                       </div>
                       <span className="text-xs font-extrabold font-mono">{student.xp} XP</span>

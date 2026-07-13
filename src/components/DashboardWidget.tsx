@@ -15,7 +15,6 @@ interface DashboardWidgetProps {
   setCurrentView: (view: string) => void;
   isPremium?: boolean;
   userFullName?: string;
-  hideHeader?: boolean;
 }
 
 export default function DashboardWidget({ 
@@ -23,8 +22,7 @@ export default function DashboardWidget({
   userStreak, 
   setCurrentView, 
   isPremium = false,
-  userFullName = "Johnfavour",
-  hideHeader = false
+  userFullName = "Johnfavour"
 }: DashboardWidgetProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -45,79 +43,78 @@ export default function DashboardWidget({
   return (
     <div className="w-full min-h-screen bg-[#fcfcfd] pb-16 font-sans antialiased text-[#002B5B]">
       
-      {!hideHeader && (
-        <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-100 px-4 py-3 flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-4">
-            {/* Menu Trigger */}
-            <button 
-              id="app-menu-toggle" 
-              className="p-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
-              onClick={() => setCurrentView("landing")}
-              title="Menu principal"
-            >
-              <Menu className="w-5 h-5 text-slate-500" />
-            </button>
-            
-            {/* Brand Logo */}
-            <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setCurrentView("landing")}>
-              <div className="bg-[#002B5B] p-1.5 md:p-2 rounded-xl text-white group-hover:bg-blue-800 transition-all shadow-md shrink-0">
-                <GraduationCap className="w-4 h-4 md:w-5 md:h-5" />
-              </div>
-              <div>
-                <span className="font-display font-bold text-base md:text-lg tracking-tight text-[#002B5B] block leading-none">
-                  La Plume
-                </span>
-                <span className="text-[8px] md:text-[9px] uppercase tracking-widest font-mono text-amber-500 font-bold block -mt-0.5">
-                  French Prep
-                </span>
-              </div>
+      {/* 1. App Header Layout */}
+      <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-100 px-4 py-3 flex items-center justify-between shadow-xs">
+        <div className="flex items-center gap-4">
+          {/* Menu Trigger */}
+          <button 
+            id="app-menu-toggle" 
+            className="p-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+            onClick={() => setCurrentView("landing")}
+            title="Menu principal"
+          >
+            <Menu className="w-5 h-5 text-slate-500" />
+          </button>
+          
+          {/* Brand Logo */}
+          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setCurrentView("landing")}>
+            <div className="bg-[#002B5B] p-1.5 md:p-2 rounded-xl text-white group-hover:bg-blue-800 transition-all shadow-md shrink-0">
+              <GraduationCap className="w-4 h-4 md:w-5 md:h-5" />
+            </div>
+            <div>
+              <span className="font-display font-bold text-base md:text-lg tracking-tight text-[#002B5B] block leading-none">
+                La Plume
+              </span>
+              <span className="text-[8px] md:text-[9px] uppercase tracking-widest font-mono text-amber-500 font-bold block -mt-0.5">
+                French Prep
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Center Search Bar */}
-          <div className="hidden md:flex items-center relative w-full max-w-md mx-6">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
-            <input
-              id="app-header-search"
-              type="text"
-              placeholder="Rechercher un cours, un badge..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-brand-blue focus:bg-white rounded-xl py-2 px-10 text-xs font-medium text-slate-600 outline-hidden transition-all"
-            />
+        {/* Center Search Bar */}
+        <div className="hidden md:flex items-center relative w-full max-w-md mx-6">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+          <input
+            id="app-header-search"
+            type="text"
+            placeholder="Rechercher un cours, un badge..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-100 hover:border-slate-200 focus:border-brand-blue focus:bg-white rounded-xl py-2 px-10 text-xs font-medium text-slate-600 outline-hidden transition-all"
+          />
+        </div>
+
+        {/* Right side Actions */}
+        <div className="flex items-center gap-3">
+          {/* Theme contrast icon */}
+          <button 
+            id="theme-contrast-toggle" 
+            className="p-2 rounded-xl hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
+            title="Changer de thème"
+          >
+            <Moon className="w-4 h-4" />
+          </button>
+
+          {/* Golden XP Pill */}
+          <div className="flex items-center gap-1.5 bg-[#FFFCE8] border border-[#FFEB85] text-[#A67C00] px-3.5 py-1.5 rounded-full font-sans text-xs font-extrabold shadow-2xs">
+            <div className="w-5 h-5 rounded-full bg-[#FFD214] flex items-center justify-center text-white shrink-0 shadow-xs">
+              <Star className="w-3 h-3 fill-white text-[#FFD214]" />
+            </div>
+            <span>{userXP} XP</span>
           </div>
 
-          {/* Right side Actions */}
-          <div className="flex items-center gap-3">
-            {/* Theme contrast icon */}
-            <button 
-              id="theme-contrast-toggle" 
-              className="p-2 rounded-xl hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
-              title="Changer de thème"
-            >
-              <Moon className="w-4 h-4" />
-            </button>
-
-            {/* Golden XP Pill */}
-            <div className="flex items-center gap-1.5 bg-[#FFFCE8] border border-[#FFEB85] text-[#A67C00] px-3.5 py-1.5 rounded-full font-sans text-xs font-extrabold shadow-2xs">
-              <div className="w-5 h-5 rounded-full bg-[#FFD214] flex items-center justify-center text-white shrink-0 shadow-xs">
-                <Star className="w-3 h-3 fill-white text-[#FFD214]" />
-              </div>
-              <span>{userXP} XP</span>
-            </div>
-
-            {/* User Initial Circle (JI for Johnfavour Igboeche) */}
-            <div 
-              id="user-profile-circle"
-              className="w-8 h-8 rounded-full bg-[#002B5B] hover:bg-brand-blue-light transition-all flex items-center justify-center text-white text-xs font-black cursor-pointer border border-slate-100"
-              onClick={() => setCurrentView("profile")}
-              title="Profil"
-            >
-              JI
-            </div>
+          {/* User Initial Circle (JI for Johnfavour Igboeche) */}
+          <div 
+            id="user-profile-circle"
+            className="w-8 h-8 rounded-full bg-[#002B5B] hover:bg-brand-blue-light transition-all flex items-center justify-center text-white text-xs font-black cursor-pointer border border-slate-100"
+            onClick={() => setCurrentView("profile")}
+            title="Profil"
+          >
+            JI
           </div>
-        </header>
-      )}
+        </div>
+      </header>
 
       {/* Main Container */}
       <div className="max-w-5xl mx-auto px-4 mt-6">
@@ -198,6 +195,17 @@ export default function DashboardWidget({
 
         {/* 3. Sub-navigation pill buttons */}
         <div className="flex items-center gap-2.5 overflow-x-auto pb-4 scrollbar-none mb-6">
+          <button 
+            id="subnav-mes-cours"
+            onClick={() => setCurrentView("mes-cours")}
+            className="flex items-center gap-2 bg-blue-50/50 hover:bg-blue-100/65 border border-blue-100 text-[#002B5B] rounded-full px-5 py-2.5 text-xs font-bold shrink-0 transition-all cursor-pointer shadow-2xs"
+          >
+            <div className="w-4.5 h-4.5 bg-[#002B5B] text-white rounded-full flex items-center justify-center">
+              <span className="material-symbols-outlined text-[10px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>auto_stories</span>
+            </div>
+            <span>Mes Cours d'Élite 📚</span>
+          </button>
+
           <button 
             id="subnav-le-blitz"
             onClick={() => setCurrentView("blitz")}
@@ -510,16 +518,19 @@ export default function DashboardWidget({
 
               {/* Event 2 */}
               <div 
-                onClick={() => setCurrentView("exams")}
+                onClick={() => {
+                  localStorage.removeItem("active_checkpoint_exam");
+                  setCurrentView("exams");
+                }}
                 className="flex items-start gap-3 cursor-pointer hover:bg-rose-50/40 p-1.5 -m-1.5 rounded-xl transition-all"
-                title="Accéder aux examens du Vendredi"
+                title="Accéder aux examens de contrôle (Checkpoints)"
               >
                 <span className="bg-rose-50 text-rose-600 font-mono font-black text-[10px] px-2.5 py-1.5 rounded-lg shrink-0">
-                  J-3
+                  EXAM
                 </span>
                 <div>
-                  <p className="text-xs font-black text-slate-800 hover:text-rose-600">Examen Hebdomadaire</p>
-                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Ce Vendredi</p>
+                  <p className="text-xs font-black text-slate-800 hover:text-rose-600">Examens Checkpoint 1-4</p>
+                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Contrôle Continu</p>
                 </div>
               </div>
             </div>

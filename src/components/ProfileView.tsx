@@ -3,13 +3,116 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react";
-import { motion } from "motion/react";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { 
   User, Lock, Bell, Palette, Shield, Award, Sparkles, Check, 
   ChevronRight, Laptop, Smartphone, Mail, MessageSquare, AlertTriangle, 
-  Trash2, RefreshCw, Eye, EyeOff, Star, Flame, Trophy, Globe, GraduationCap, ArrowLeft
+  Trash2, RefreshCw, Eye, EyeOff, Star, Flame, Trophy, Globe, GraduationCap, ArrowLeft,
+  Search, X, Camera, Upload
 } from "lucide-react";
+
+export interface BadgeItem {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  xpBonus: number;
+  rarity: "Commun" | "Peu commun" | "Rare" | "Épique" | "Légendaire";
+  category: "discipline" | "blitz" | "academic" | "projects" | "exams" | "checkpoints" | "levels" | "community" | "cohort";
+  unlocked: boolean;
+}
+
+export const ALL_BADGES: BadgeItem[] = [
+  // Series & Discipline
+  { id: "s1", icon: "🔥", title: "Première Flamme", description: "Complete your first day of study", xpBonus: 50, rarity: "Commun", category: "discipline", unlocked: true },
+  { id: "s2", icon: "🔥", title: "Série de 3 jours", description: "Study 3 consecutive days", xpBonus: 75, rarity: "Commun", category: "discipline", unlocked: true },
+  { id: "s3", icon: "🔥", title: "Série de 7 jours", description: "Study 7 consecutive days", xpBonus: 150, rarity: "Peu commun", category: "discipline", unlocked: true },
+  { id: "s4", icon: "🔥", title: "Série de 14 jours", description: "Study 14 consecutive days", xpBonus: 250, rarity: "Rare", category: "discipline", unlocked: false },
+  { id: "s5", icon: "🔥", title: "Série de 21 jours", description: "Study 21 consecutive days", xpBonus: 400, rarity: "Épique", category: "discipline", unlocked: false },
+  { id: "s6", icon: "🔥", title: "Série Parfaite — 30 jours", description: "Study all 30 days without missing one", xpBonus: 600, rarity: "Légendaire", category: "discipline", unlocked: false },
+
+  // Arène Le Blitz
+  { id: "b1", icon: "⚡", title: "Premier Blitz", description: "Complete your first Le Blitz session", xpBonus: 50, rarity: "Commun", category: "blitz", unlocked: true },
+  { id: "b2", icon: "⚡", title: "Blitz Régulier", description: "Complete 5 Le Blitz sessions", xpBonus: 100, rarity: "Commun", category: "blitz", unlocked: false },
+  { id: "b3", icon: "⚡", title: "Maître du Blitz", description: "Score 9/11 or above in Le Blitz", xpBonus: 150, rarity: "Peu commun", category: "blitz", unlocked: false },
+  { id: "b4", icon: "⚡", title: "Blitz Parfait", description: "Score 11/11 in Le Blitz", xpBonus: 300, rarity: "Rare", category: "blitz", unlocked: false },
+  { id: "b5", icon: "⚡", title: "Vitesse Éclair", description: "Answer a Blitz question in under 2 minutes", xpBonus: 100, rarity: "Peu commun", category: "blitz", unlocked: true },
+  { id: "b6", icon: "⚡", title: "Champion du Blitz", description: "Score 11/11 three times", xpBonus: 500, rarity: "Épique", category: "blitz", unlocked: false },
+  { id: "b7", icon: "⚡", title: "Légende du Blitz", description: "Finish in Top 3 of national Blitz ranking", xpBonus: 750, rarity: "Légendaire", category: "blitz", unlocked: false },
+
+  // Maîtrise Académique
+  { id: "a1", icon: "📚", title: "Premiers Pas", description: "Complete your first grammar lesson", xpBonus: 50, rarity: "Commun", category: "academic", unlocked: true },
+  { id: "a2", icon: "📚", title: "Grammaire Pro", description: "Score 80%+ on grammar exercises", xpBonus: 150, rarity: "Peu commun", category: "academic", unlocked: true },
+  { id: "a3", icon: "📚", title: "Maître des Verbes", description: "Score 90%+ on all verb conjugation exercises", xpBonus: 200, rarity: "Rare", category: "academic", unlocked: false },
+  { id: "a4", icon: "📚", title: "Expert Conjugaison", description: "Complete all conjugation lessons with 85%+ accuracy", xpBonus: 250, rarity: "Rare", category: "academic", unlocked: false },
+  { id: "a5", icon: "📚", title: "Roi de l'Accord", description: "Score 95%+ on adjective agreement exercises", xpBonus: 300, rarity: "Épique", category: "academic", unlocked: false },
+  { id: "a6", icon: "📚", title: "Maître de la Langue", description: "Score 90%+ average across ALL grammar topics", xpBonus: 500, rarity: "Légendaire", category: "academic", unlocked: false },
+
+  // Projets & Rédaction
+  { id: "p1", icon: "✉️", title: "Plumiste", description: "Submit your first written project (La Lettre)", xpBonus: 100, rarity: "Commun", category: "projects", unlocked: true },
+  { id: "p2", icon: "✉️", title: "Épistolier", description: "Score 80%+ on La Lettre project (formal letter)", xpBonus: 200, rarity: "Peu commun", category: "projects", unlocked: false },
+  { id: "p3", icon: "📰", title: "Traducteur", description: "Complete La Traduction project", xpBonus: 150, rarity: "Commun", category: "projects", unlocked: true },
+  { id: "p4", icon: "📰", title: "Traducteur Expert", description: "Score 85%+ on La Traduction", xpBonus: 250, rarity: "Rare", category: "projects", unlocked: false },
+  { id: "p5", icon: "✍️", title: "Débatteur", description: "Complete Le Débat project (argumentative essay)", xpBonus: 200, rarity: "Commun", category: "projects", unlocked: false },
+  { id: "p6", icon: "✍️", title: "Grand Orateur", description: "Score 85%+ on Le Débat", xpBonus: 350, rarity: "Épique", category: "projects", unlocked: false },
+  { id: "p7", icon: "🎙️", title: "Orateur", description: "Complete L'Oral project (all three parts)", xpBonus: 200, rarity: "Peu commun", category: "projects", unlocked: false },
+  { id: "p8", icon: "🎙️", title: "Voix d'Or", description: "Score 85%+ on all three parts of L'Oral", xpBonus: 400, rarity: "Épique", category: "projects", unlocked: false },
+
+  // Examens Checkpoint
+  { id: "e1", icon: "🔒", title: "Candidat Officiel", description: "Sit your first Checkpoint exam", xpBonus: 100, rarity: "Commun", category: "exams", unlocked: true },
+  { id: "e2", icon: "🔒", title: "Passable", description: "Score 50%+ on a Checkpoint exam", xpBonus: 150, rarity: "Commun", category: "exams", unlocked: true },
+  { id: "e3", icon: "🔒", title: "Assez Bien", description: "Score 60%+ on a Checkpoint exam", xpBonus: 200, rarity: "Peu commun", category: "exams", unlocked: false },
+  { id: "e4", icon: "🔒", title: "Bien", description: "Score 70%+ on a Checkpoint exam", xpBonus: 300, rarity: "Rare", category: "exams", unlocked: false },
+  { id: "e5", icon: "🔒", title: "Très Bien", description: "Score 80%+ on a Checkpoint exam", xpBonus: 400, rarity: "Épique", category: "exams", unlocked: false },
+  { id: "e6", icon: "🔒", title: "Excellence", description: "Score 90%+ on a Checkpoint exam", xpBonus: 600, rarity: "Légendaire", category: "exams", unlocked: false },
+  { id: "e7", icon: "🔒", title: "Sans Faute", description: "Complete a Checkpoint exam with zero violations", xpBonus: 200, rarity: "Peu commun", category: "exams", unlocked: false },
+  { id: "e8", icon: "🔒", title: "Examen Parfait", description: "Score 95%+ on any Checkpoint exam", xpBonus: 800, rarity: "Légendaire", category: "exams", unlocked: false },
+
+  // Checkpoints
+  { id: "c1", icon: "○", title: "Premier Checkpoint", description: "Pass Checkpoint 1 with 70%+", xpBonus: 200, rarity: "Commun", category: "checkpoints", unlocked: true },
+  { id: "c2", icon: "○", title: "Checkpoint avec Mention", description: "Pass any Checkpoint with 85%+", xpBonus: 300, rarity: "Peu commun", category: "checkpoints", unlocked: false },
+  { id: "c3", icon: "○", title: "Parcours Validé", description: "Pass all 4 Checkpoints", xpBonus: 500, rarity: "Rare", category: "checkpoints", unlocked: false },
+  { id: "c4", icon: "○", title: "Mention Très Bien", description: "Pass all 4 Checkpoints with 80%+", xpBonus: 750, rarity: "Épique", category: "checkpoints", unlocked: false },
+
+  // Niveaux
+  { id: "l2", icon: "⭐", title: "Niveau 2 — Aspirant", description: "Reach Level 2", xpBonus: 100, rarity: "Commun", category: "levels", unlocked: true },
+  { id: "l3", icon: "⭐", title: "Niveau 3 — Elite Cadet", description: "Reach Level 3", xpBonus: 150, rarity: "Commun", category: "levels", unlocked: true },
+  { id: "l5", icon: "⭐", title: "Niveau 5 — Elite Scholar", description: "Reach Level 5", xpBonus: 250, rarity: "Peu commun", category: "levels", unlocked: true },
+  { id: "l8", icon: "⭐", title: "Niveau 8 — Elite Master", description: "Reach Level 8", xpBonus: 400, rarity: "Rare", category: "levels", unlocked: false },
+  { id: "l10", icon: "⭐", title: "Niveau 10 — La Plume Legend", description: "Reach Level 10", xpBonus: 600, rarity: "Légendaire", category: "levels", unlocked: false },
+
+  // Communauté & Social
+  { id: "cm1", icon: "🌍", title: "Pionnier Africain", description: "One of the first 1,000 students to register for Cohort 1", xpBonus: 200, rarity: "Épique", category: "community", unlocked: true },
+  { id: "cm2", icon: "🌍", title: "Ambassadeur", description: "Share your result card on social media tagging La Plume", xpBonus: 100, rarity: "Commun", category: "community", unlocked: false },
+  { id: "cm3", icon: "🌍", title: "Connecteur", description: "Interact with 6 different students in the cohort", xpBonus: 150, rarity: "Peu commun", category: "community", unlocked: true },
+  { id: "cm4", icon: "🌍", title: "Top 100 National", description: "Reach Top 100 on national leaderboard", xpBonus: 300, rarity: "Rare", category: "community", unlocked: false },
+  { id: "cm5", icon: "🌍", title: "Top 10 National", description: "Reach Top 10 on national leaderboard", xpBonus: 500, rarity: "Épique", category: "community", unlocked: false },
+  { id: "cm6", icon: "🌍", title: "#1 National", description: "Reach #1 on national leaderboard", xpBonus: 1000, rarity: "Légendaire", category: "community", unlocked: false },
+
+  // Cohorte & Diplôme
+  { id: "co1", icon: "🎓", title: "Semaine 1 Complétée", description: "Complete all Week 1 lessons", xpBonus: 300, rarity: "Commun", category: "cohort", unlocked: true },
+  { id: "co2", icon: "🎓", title: "Semaine 2 Complétée", description: "Complete all Week 2 lessons", xpBonus: 400, rarity: "Peu commun", category: "cohort", unlocked: false },
+  { id: "co3", icon: "🎓", title: "Semaine 3 Complétée", description: "Complete all Week 3 lessons", xpBonus: 500, rarity: "Rare", category: "cohort", unlocked: false },
+  { id: "co4", icon: "🎓", title: "Semaine 4 Complétée", description: "Complete all Week 4 lessons", xpBonus: 600, rarity: "Épique", category: "cohort", unlocked: false },
+  { id: "co5", icon: "🎓", title: "Diplômé La Plume", description: "Complete the full 30-day cohort", xpBonus: 1000, rarity: "Légendaire", category: "cohort", unlocked: false },
+  { id: "co6", icon: "🎓", title: "Major de Cohorte", description: "Finish #1 in cohort overall score", xpBonus: 2000, rarity: "Légendaire", category: "cohort", unlocked: false }
+];
+
+export const BADGE_CATEGORIES = [
+  { id: "all", label: "Tous", icon: "✨" },
+  { id: "discipline", label: "🔥 Discipline", icon: "🔥" },
+  { id: "blitz", label: "⚡ Le Blitz", icon: "⚡" },
+  { id: "academic", label: "📚 Académique", icon: "📚" },
+  { id: "projects", label: "✉️ Projets", icon: "✉️" },
+  { id: "exams", label: "🔒 Examens", icon: "🔒" },
+  { id: "checkpoints", label: "○ Checkpoints", icon: "○" },
+  { id: "levels", label: "⭐ Niveaux", icon: "⭐" },
+  { id: "community", label: "🌍 Communauté", icon: "🌍" },
+  { id: "cohort", label: "🎓 Cohorte", icon: "🎓" }
+];
+
+export const BADGE_RARITIES = ["all", "Commun", "Peu commun", "Rare", "Épique", "Légendaire"];
 
 interface ProfileViewProps {
   userXP: number;
@@ -37,6 +140,76 @@ export default function ProfileView({
   const [nativeLanguage, setNativeLanguage] = useState<string>("Anglais");
   const [isSaved, setIsSaved] = useState<boolean>(false);
 
+  // Profile photo state
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState<boolean>(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load photo on mount
+  useEffect(() => {
+    const savedPhoto = localStorage.getItem("la_plume_profile_photo");
+    if (savedPhoto) {
+      setProfilePhoto(savedPhoto);
+    }
+  }, []);
+
+  const handlePhotoUpload = (file: File) => {
+    setPhotoError(null);
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Le fichier doit être une image (PNG, JPG, JPEG).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoError("L'image est trop volumineuse (max 5 Mo).");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      if (base64) {
+        setProfilePhoto(base64);
+        localStorage.setItem("la_plume_profile_photo", base64);
+      }
+    };
+    reader.onerror = () => {
+      setPhotoError("Erreur lors de la lecture du fichier.");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handlePhotoUpload(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handlePhotoUpload(e.target.files[0]);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setProfilePhoto(null);
+    setPhotoError(null);
+    localStorage.removeItem("la_plume_profile_photo");
+  };
+
   // Security Form state
   const [oldPassword, setOldPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
@@ -63,6 +236,24 @@ export default function ProfileView({
 
   // Modal State for danger actions
   const [modalType, setModalType] = useState<"reset" | "delete" | null>(null);
+
+  // Sub-state for filtering badges
+  const [badgeSearch, setBadgeSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedRarity, setSelectedRarity] = useState<string>("all");
+  const [selectedBadge, setSelectedBadge] = useState<BadgeItem | null>(null);
+
+  // Filtering computation for badges
+  const filteredBadges = ALL_BADGES.filter(badge => {
+    const matchesSearch = badge.title.toLowerCase().includes(badgeSearch.toLowerCase()) || 
+                          badge.description.toLowerCase().includes(badgeSearch.toLowerCase());
+    const matchesCategory = selectedCategory === "all" || badge.category === selectedCategory;
+    const matchesRarity = selectedRarity === "all" || badge.rarity === selectedRarity;
+    return matchesSearch && matchesCategory && matchesRarity;
+  });
+
+  const unlockedCount = ALL_BADGES.filter(b => b.unlocked).length;
+  const totalXPBonus = ALL_BADGES.filter(b => b.unlocked).reduce((acc, curr) => acc + curr.xpBonus, 0);
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,12 +348,32 @@ export default function ProfileView({
         <div className="max-w-5xl w-full mx-auto px-4 pb-6 flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left z-10">
           
           {/* Avatar Container */}
-          <div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white bg-brand-blue text-white shadow-lg flex items-center justify-center text-3xl font-black relative overflow-hidden -mb-1 sm:-mb-3 shrink-0">
-            {firstName.substring(0, 1).toUpperCase()}
-            {lastName.substring(0, 1).toUpperCase()}
+          <div 
+            onClick={() => fileInputRef.current?.click()}
+            className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white bg-brand-blue text-white shadow-lg flex items-center justify-center text-3xl font-black relative overflow-hidden -mb-1 sm:-mb-3 shrink-0 group/avatar cursor-pointer"
+            title="Cliquez pour changer de photo"
+          >
+            {profilePhoto ? (
+              <img 
+                src={profilePhoto} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <>
+                {firstName.substring(0, 1).toUpperCase()}
+                {lastName.substring(0, 1).toUpperCase()}
+              </>
+            )}
             
+            {/* Edit overlay */}
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+              <Camera className="w-6 h-6 text-white" />
+            </div>
+
             {isPremium && (
-              <div className="absolute bottom-0 inset-x-0 bg-amber-500 text-white text-[8px] font-black uppercase text-center py-0.5 tracking-wider">
+              <div className="absolute bottom-0 inset-x-0 bg-amber-500 text-white text-[8px] font-black uppercase text-center py-0.5 tracking-wider z-10">
                 PRO
               </div>
             )}
@@ -230,6 +441,76 @@ export default function ProfileView({
                 </div>
 
                 <form onSubmit={handleSaveProfile} className="space-y-4">
+                  {/* Photo de Profil - Drag & Drop / Upload area */}
+                  <div className="space-y-2.5 pb-2">
+                    <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">Photo de profil</label>
+                    
+                    <div className="flex flex-col sm:flex-row items-center gap-6">
+                      {/* Left: Avatar preview */}
+                      <div className="relative w-20 h-20 rounded-full border-2 border-slate-200 bg-brand-blue text-white flex items-center justify-center text-xl font-black overflow-hidden shrink-0 shadow-xs">
+                        {profilePhoto ? (
+                          <img 
+                            src={profilePhoto} 
+                            alt="Profile Preview" 
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <>
+                            {firstName.substring(0, 1).toUpperCase()}
+                            {lastName.substring(0, 1).toUpperCase()}
+                          </>
+                        )}
+                      </div>
+
+                      {/* Right: Drag & drop box */}
+                      <div 
+                        onDragEnter={handleDrag}
+                        onDragOver={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDrop={handleDrop}
+                        onClick={() => fileInputRef.current?.click()}
+                        className={`flex-1 w-full h-24 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all ${
+                          dragActive 
+                            ? "border-brand-blue bg-blue-50/50 scale-[1.01]" 
+                            : "border-slate-200 hover:border-slate-300 bg-slate-50/30 hover:bg-slate-50/80"
+                        }`}
+                      >
+                        <input 
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFileSelect}
+                        />
+                        <Upload className="w-5 h-5 text-slate-400 mb-1" />
+                        <p className="text-xs font-bold text-slate-700">
+                          Déposez votre photo ici, ou <span className="text-brand-blue hover:underline">parcourez vos fichiers</span>
+                        </p>
+                        <p className="text-[10px] text-slate-400 font-medium mt-1">PNG, JPG, JPEG (max. 5 Mo)</p>
+                      </div>
+                    </div>
+
+                    {profilePhoto && (
+                      <div className="flex justify-start">
+                        <button
+                          type="button"
+                          onClick={handleRemovePhoto}
+                          className="flex items-center gap-1.5 px-3 py-1.5 border border-rose-100 hover:border-rose-200 bg-rose-50/50 hover:bg-rose-50 text-[10px] font-black text-rose-600 uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Supprimer la photo
+                        </button>
+                      </div>
+                    )}
+
+                    {photoError && (
+                      <p className="text-xs font-bold text-rose-500 flex items-center gap-1 animate-fade-in">
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> {photoError}
+                      </p>
+                    )}
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">Prénom</label>
@@ -316,19 +597,27 @@ export default function ProfileView({
                 </div>
 
                 <div className="flex flex-col items-center p-4 border border-dashed border-slate-200 rounded-2xl bg-slate-50 text-center">
-                  <div className="w-16 h-16 rounded-full bg-brand-blue text-white flex items-center justify-center font-display font-black text-xl mb-3 border-2 border-amber-300 relative">
-                    <div className="absolute top-0 right-0 w-4.5 h-4.5 bg-emerald-500 border-2 border-white rounded-full" />
-                    {firstName.substring(0, 1).toUpperCase()}
-                    {lastName.substring(0, 1).toUpperCase()}
+                  <div className="w-16 h-16 rounded-full bg-brand-blue text-white flex items-center justify-center font-display font-black text-xl mb-3 border-2 border-amber-300 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-4.5 h-4.5 bg-emerald-500 border-2 border-white rounded-full z-10" />
+                    {profilePhoto ? (
+                      <img 
+                        src={profilePhoto} 
+                        alt="Profile" 
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <>
+                        {firstName.substring(0, 1).toUpperCase()}
+                        {lastName.substring(0, 1).toUpperCase()}
+                      </>
+                    )}
                   </div>
                   
                   <p className="font-display font-black text-base text-slate-800">
                     {firstName} {lastName.substring(0, 1)}.
                   </p>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 flex items-center gap-1.5 justify-center">
-                    <img src="https://flagcdn.com/w20/ng.png" alt="Nigeria" className="w-3.5 h-2.5 object-cover rounded-xs" />
-                    Nigeria
-                  </p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">🇳🇬 Nigeria</p>
 
                   <div className="w-full space-y-2 mt-5">
                     <div className="flex justify-between items-center bg-white border border-slate-100 p-2.5 rounded-xl">
@@ -356,7 +645,7 @@ export default function ProfileView({
 
         {/* TAB 2: BADGES - GAMIFIED ACHIEVEMENTS */}
         {activeTab === "badges" && (
-          <div className="space-y-8">
+          <div className="space-y-8 animate-fade-in">
             
             {/* Overview Stats Bento Box Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -367,8 +656,11 @@ export default function ProfileView({
                   <Award className="w-6 h-6 stroke-[2]" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Badges Déverrouillés</p>
-                  <p className="text-lg font-black text-slate-800">12 / 52</p>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Badges Déverrouillés</p>
+                  <p className="text-lg font-black text-slate-800">{unlockedCount} / {ALL_BADGES.length}</p>
+                  <div className="w-24 bg-slate-100 h-1 rounded-full mt-1 overflow-hidden">
+                    <div className="bg-amber-400 h-full" style={{ width: `${(unlockedCount / ALL_BADGES.length) * 100}%` }} />
+                  </div>
                 </div>
               </div>
 
@@ -378,214 +670,255 @@ export default function ProfileView({
                   <Trophy className="w-6 h-6 stroke-[2]" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">XP de Badges accumulés</p>
-                  <p className="text-lg font-black text-slate-800">1,450 XP</p>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">XP de Badges accumulés</p>
+                  <p className="text-lg font-black text-slate-800">+{totalXPBonus} XP</p>
+                  <p className="text-[9px] font-bold text-slate-400 mt-0.5 uppercase tracking-wide">Ajoutés à votre profil</p>
                 </div>
               </div>
 
               {/* Current Level */}
               <div className="bg-white border border-slate-200 shadow-xs rounded-3xl p-5 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-150 flex items-center justify-center text-emerald-600">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
                   <Sparkles className="w-6 h-6 stroke-[2]" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Niveau de Compte</p>
-                  <p className="text-lg font-black text-slate-800">Niveau 14</p>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Niveau de Compte</p>
+                  <p className="text-lg font-black text-slate-800">Elite Cadet</p>
+                  <p className="text-[9px] font-bold text-emerald-600 mt-0.5 font-mono uppercase tracking-widest">Niveau 3</p>
                 </div>
               </div>
 
             </div>
 
-            {/* Badges categories */}
-            <div className="space-y-8">
-              
-              {/* 1. Séries & Discipline */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">🔥</span>
-                  <h3 className="font-display font-black text-base text-slate-800">Séries &amp; Discipline</h3>
+            {/* SEARCH & FILTER CONTROLS */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                {/* Search Bar */}
+                <div className="relative w-full md:max-w-sm">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Rechercher un badge (ex: Blitz, Flamme)..."
+                    value={badgeSearch}
+                    onChange={(e) => setBadgeSearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold focus:outline-hidden focus:bg-white focus:border-brand-blue focus:ring-1 focus:ring-brand-blue transition-all"
+                  />
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {/* Badge 1 */}
-                  <div className="bg-white border-2 border-slate-100 p-4 rounded-2xl flex flex-col items-center text-center hover:scale-102 hover:shadow-xs transition-all cursor-pointer">
-                    <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-xl mb-3 shadow-3xs">
-                      📅
-                    </div>
-                    <h4 className="text-xs font-black text-slate-800 leading-tight">Apprenti Constant</h4>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase">Série de 3 jours</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 text-[9px] font-black rounded-lg">+50 XP</span>
-                  </div>
-
-                  {/* Badge 2 */}
-                  <div className="bg-white border-2 border-brand-blue-light/20 p-4 rounded-2xl flex flex-col items-center text-center hover:scale-102 hover:shadow-xs transition-all cursor-pointer">
-                    <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-xl mb-3 shadow-3xs">
-                      🔥
-                    </div>
-                    <h4 className="text-xs font-black text-slate-800 leading-tight">Routine d'Or</h4>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase">Série de 7 jours</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-brand-blue/5 text-brand-blue border border-brand-blue/10 text-[9px] font-black rounded-lg">+150 XP</span>
-                  </div>
-
-                  {/* Badge 3 (Locked) */}
-                  <div className="bg-white/70 border-2 border-slate-100/50 p-4 rounded-2xl flex flex-col items-center text-center opacity-45">
-                    <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-xl mb-3">
-                      👑
-                    </div>
-                    <h4 className="text-xs font-black text-slate-500 leading-tight">Le Discipliné</h4>
-                    <p className="text-[9px] text-slate-400 font-semibold mt-1 uppercase">Série de 30 jours</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded-lg">+500 XP</span>
-                  </div>
-
-                  {/* Badge 4 (Locked) */}
-                  <div className="bg-white/70 border-2 border-slate-100/50 p-4 rounded-2xl flex flex-col items-center text-center opacity-45">
-                    <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-xl mb-3">
-                      💎
-                    </div>
-                    <h4 className="text-xs font-black text-slate-500 leading-tight">Immortel</h4>
-                    <p className="text-[9px] text-slate-400 font-semibold mt-1 uppercase">Série de 100 jours</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded-lg">+2000 XP</span>
-                  </div>
+                {/* Rarity selector pills */}
+                <div className="flex gap-1.5 flex-wrap">
+                  {BADGE_RARITIES.map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => setSelectedRarity(r)}
+                      className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                        selectedRarity === r
+                          ? "bg-slate-900 text-white shadow-xs"
+                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      {r === "all" ? "Toutes Raretés" : r}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* 2. Arène Le Blitz */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">⚡</span>
-                  <h3 className="font-display font-black text-base text-slate-800">Arène Le Blitz</h3>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {/* Badge 1 */}
-                  <div className="bg-white border-2 border-slate-100 p-4 rounded-2xl flex flex-col items-center text-center hover:scale-102 hover:shadow-xs transition-all cursor-pointer">
-                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-xl mb-3 shadow-3xs">
-                      ⏱️
-                    </div>
-                    <h4 className="text-xs font-black text-slate-800 leading-tight">Premier Blitz</h4>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase">Finir un Quiz Blitz</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 text-[9px] font-black rounded-lg">+30 XP</span>
-                  </div>
-
-                  {/* Badge 2 */}
-                  <div className="bg-white border-2 border-slate-100 p-4 rounded-2xl flex flex-col items-center text-center hover:scale-102 hover:shadow-xs transition-all cursor-pointer">
-                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-xl mb-3 shadow-3xs">
-                      🎯
-                    </div>
-                    <h4 className="text-xs font-black text-slate-800 leading-tight">Blitz Parfait</h4>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase">10/10 sans faute</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-brand-blue/5 text-brand-blue border border-brand-blue/10 text-[9px] font-black rounded-lg">+250 XP</span>
-                  </div>
-
-                  {/* Badge 3 */}
-                  <div className="bg-white border-2 border-amber-200 p-4 rounded-2xl flex flex-col items-center text-center hover:scale-102 hover:shadow-xs transition-all cursor-pointer">
-                    <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-xl mb-3 shadow-3xs">
-                      🚀
-                    </div>
-                    <h4 className="text-xs font-black text-slate-800 leading-tight">Sonic</h4>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase">Blitz en &lt; 60s</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-black rounded-lg">+400 XP</span>
-                  </div>
-
-                  {/* Badge 4 (Special Premium or Pro Achievement) */}
-                  <div className="bg-slate-900 border-2 border-amber-400 p-4 rounded-2xl flex flex-col items-center text-center hover:scale-102 hover:shadow-md transition-all cursor-pointer shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-8 h-8 bg-amber-400/20 rounded-bl-full pointer-events-none" />
-                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-xl mb-3 shadow-3xs">
-                      🌩️
-                    </div>
-                    <h4 className="text-xs font-black text-amber-400 leading-tight">Dieu du Blitz</h4>
-                    <p className="text-[9px] text-slate-300 font-bold mt-1 uppercase">Gagner 50 duels</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-amber-450 text-slate-950 text-[9px] font-black rounded-lg">+1500 XP</span>
-                  </div>
-                </div>
+              {/* Categories Scrollable strip */}
+              <div className="border-t border-slate-100 pt-3 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                {BADGE_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                      selectedCategory === cat.id
+                        ? "bg-brand-blue text-white shadow-xs"
+                        : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-150"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
               </div>
-
-              {/* 3. Maîtrise Académique */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">📚</span>
-                  <h3 className="font-display font-black text-base text-slate-800">Maîtrise Académique</h3>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {/* Badge 1 */}
-                  <div className="bg-white border-2 border-brand-blue-light/10 p-4 rounded-2xl flex flex-col items-center text-center hover:scale-102 hover:shadow-xs transition-all cursor-pointer">
-                    <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-xl mb-3 shadow-3xs">
-                      🖋️
-                    </div>
-                    <h4 className="text-xs font-black text-slate-800 leading-tight">Grammaire Pro</h4>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase">Zéro faute accord</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-brand-blue/5 text-brand-blue border border-brand-blue/10 text-[9px] font-black rounded-lg">+100 XP</span>
-                  </div>
-
-                  {/* Badge 2 */}
-                  <div className="bg-white border-2 border-slate-100 p-4 rounded-2xl flex flex-col items-center text-center hover:scale-102 hover:shadow-xs transition-all cursor-pointer">
-                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-xl mb-3 shadow-3xs">
-                      🔄
-                    </div>
-                    <h4 className="text-xs font-black text-slate-800 leading-tight">Maître des Verbes</h4>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase">Quiz Conjugaison Parfait</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-brand-blue/5 text-brand-blue border border-brand-blue/10 text-[9px] font-black rounded-lg">+200 XP</span>
-                  </div>
-
-                  {/* Badge 3 (Locked) */}
-                  <div className="bg-white/70 border-2 border-slate-100/50 p-4 rounded-2xl flex flex-col items-center text-center opacity-45">
-                    <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-xl mb-3">
-                      📖
-                    </div>
-                    <h4 className="text-xs font-black text-slate-500 leading-tight">Lecteur Assidu</h4>
-                    <p className="text-[9px] text-slate-400 font-semibold mt-1 uppercase">10 fiches lues</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded-lg">+75 XP</span>
-                  </div>
-
-                  {/* Badge 4 (Locked) */}
-                  <div className="bg-white/70 border-2 border-slate-100/50 p-4 rounded-2xl flex flex-col items-center text-center opacity-45">
-                    <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-xl mb-3">
-                      🌋
-                    </div>
-                    <h4 className="text-xs font-black text-slate-500 leading-tight">Encyclopédiste</h4>
-                    <p className="text-[9px] text-slate-400 font-semibold mt-1 uppercase">Toutes fiches lues</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded-lg">+1000 XP</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 4. Projets & Rédaction */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">✉️</span>
-                  <h3 className="font-display font-black text-base text-slate-800">Projets &amp; Rédaction</h3>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {/* Badge 1 */}
-                  <div className="bg-white border-2 border-slate-100 p-4 rounded-2xl flex flex-col items-center text-center hover:scale-102 hover:shadow-xs transition-all cursor-pointer">
-                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-xl mb-3 shadow-3xs">
-                      🪶
-                    </div>
-                    <h4 className="text-xs font-black text-slate-800 leading-tight">Plumiste</h4>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase">Première rédaction</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 text-[9px] font-black rounded-lg">+50 XP</span>
-                  </div>
-
-                  {/* Badge 2 */}
-                  <div className="bg-white border-2 border-slate-100 p-4 rounded-2xl flex flex-col items-center text-center hover:scale-102 hover:shadow-xs transition-all cursor-pointer">
-                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-xl mb-3 shadow-3xs">
-                      📜
-                    </div>
-                    <h4 className="text-xs font-black text-slate-800 leading-tight">Épistolier</h4>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase">Meilleur de la classe</p>
-                    <span className="mt-2.5 px-2 py-0.5 bg-brand-blue/5 text-brand-blue border border-brand-blue/10 text-[9px] font-black rounded-lg">+300 XP</span>
-                  </div>
-
-                  {/* Placeholders helper card */}
-                  <div className="col-span-2 bg-slate-50 border border-dashed border-slate-200 rounded-2xl flex items-center justify-center p-4">
-                    <p className="text-[11px] font-bold text-slate-400 italic">... 38 autres badges à découvrir ...</p>
-                  </div>
-                </div>
-              </div>
-
             </div>
+
+            {/* BADGES GRID */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+              {filteredBadges.map((badge) => {
+                const rarityStyles = {
+                  Commun: "border-slate-150 hover:border-slate-350 bg-white",
+                  "Peu commun": "border-indigo-100 hover:border-indigo-300 bg-white shadow-3xs",
+                  Rare: "border-purple-200 hover:border-purple-400 bg-white shadow-2xs",
+                  Épique: "border-amber-300 hover:border-amber-500 bg-amber-50/10 shadow-xs",
+                  Légendaire: "border-rose-400 hover:border-rose-600 bg-slate-900 text-white shadow-md"
+                }[badge.rarity];
+
+                const rarityBadgeText = {
+                  Commun: "bg-slate-100 text-slate-600",
+                  "Peu commun": "bg-indigo-50 text-indigo-700",
+                  Rare: "bg-purple-50 text-purple-700",
+                  Épique: "bg-amber-100 text-amber-800",
+                  Légendaire: "bg-rose-500 text-white"
+                }[badge.rarity];
+
+                return (
+                  <motion.div
+                    layout
+                    key={badge.id}
+                    onClick={() => setSelectedBadge(badge)}
+                    className={`border-2 p-4 rounded-2xl flex flex-col items-center text-center transition-all cursor-pointer relative overflow-hidden group ${rarityStyles} ${
+                      !badge.unlocked ? "opacity-45 hover:opacity-75 grayscale" : ""
+                    }`}
+                  >
+                    {/* Locked Lock Icon */}
+                    {!badge.unlocked && (
+                      <div className="absolute top-2 right-2 bg-slate-100/80 p-1 rounded-full text-slate-400">
+                        <Lock className="w-3.5 h-3.5" />
+                      </div>
+                    )}
+
+                    {/* Sparkly corner for Legendaries */}
+                    {badge.rarity === "Légendaire" && badge.unlocked && (
+                      <div className="absolute top-0 right-0 w-8 h-8 bg-amber-400/20 rounded-bl-full pointer-events-none animate-pulse" />
+                    )}
+
+                    {/* Badge Icon circle */}
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-3 shadow-3xs group-hover:scale-110 transition-transform ${
+                      badge.rarity === "Légendaire" ? "bg-white/10" : "bg-slate-50"
+                    }`}>
+                      {badge.icon}
+                    </div>
+
+                    {/* Rarity pill */}
+                    <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-wider rounded-md ${rarityBadgeText}`}>
+                      {badge.rarity}
+                    </span>
+
+                    <h4 className="text-xs font-black leading-snug mt-2.5">
+                      {badge.title}
+                    </h4>
+
+                    <p className={`text-[10px] mt-1 font-semibold line-clamp-2 ${
+                      badge.rarity === "Légendaire" ? "text-slate-300" : "text-slate-400"
+                    }`}>
+                      {badge.description}
+                    </p>
+
+                    <span className={`mt-3 px-2 py-0.5 text-[9px] font-black rounded-lg border ${
+                      badge.unlocked 
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
+                        : "bg-slate-100 text-slate-500 border-slate-200"
+                    }`}>
+                      +{badge.xpBonus} XP
+                    </span>
+                  </motion.div>
+                );
+              })}
+
+              {filteredBadges.length === 0 && (
+                <div className="col-span-full py-16 text-center space-y-3 bg-white border border-slate-200 rounded-3xl">
+                  <p className="text-slate-400 font-semibold text-sm">Aucun badge ne correspond à vos filtres.</p>
+                  <button 
+                    onClick={() => {
+                      setBadgeSearch("");
+                      setSelectedCategory("all");
+                      setSelectedRarity("all");
+                    }}
+                    className="text-brand-blue font-extrabold text-xs uppercase tracking-wider hover:underline"
+                  >
+                    Réinitialiser les filtres
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* DETAILED BADGE MODAL OVERLAY */}
+            <AnimatePresence>
+              {selectedBadge && (
+                <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+                  {/* Backdrop */}
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs" 
+                    onClick={() => setSelectedBadge(null)} 
+                  />
+
+                  {/* Modal Box */}
+                  <motion.div 
+                    initial={{ scale: 0.95, y: 15, opacity: 0 }}
+                    animate={{ scale: 1, y: 0, opacity: 1 }}
+                    exit={{ scale: 0.95, y: 15, opacity: 0 }}
+                    className="bg-white w-full max-w-sm rounded-3xl p-6 relative z-10 shadow-2xl border border-slate-150 text-center"
+                  >
+                    <button 
+                      onClick={() => setSelectedBadge(null)}
+                      className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 p-1.5 rounded-full cursor-pointer transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    <div className="flex flex-col items-center pt-4">
+                      {/* Huge animated badge circle */}
+                      <div className={`w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-4 shadow-md ${
+                        selectedBadge.rarity === "Légendaire" ? "bg-slate-900 border-2 border-rose-400" : "bg-slate-50 border border-slate-100"
+                      }`}>
+                        {selectedBadge.icon}
+                      </div>
+
+                      <span className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg ${
+                        {
+                          Commun: "bg-slate-100 text-slate-600",
+                          "Peu commun": "bg-indigo-50 text-indigo-700",
+                          Rare: "bg-purple-50 text-purple-700",
+                          Épique: "bg-amber-100 text-amber-800",
+                          Légendaire: "bg-rose-500 text-white"
+                        }[selectedBadge.rarity]
+                      }`}>
+                        Badge {selectedBadge.rarity}
+                      </span>
+
+                      <h3 className="font-display font-black text-lg text-slate-800 mt-3 leading-tight">
+                        {selectedBadge.title}
+                      </h3>
+
+                      <p className="text-xs font-semibold text-slate-500 mt-2 leading-relaxed">
+                        {selectedBadge.description}
+                      </p>
+
+                      <div className="w-full border-t border-slate-100 my-5 pt-4">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Statut</span>
+                          {selectedBadge.unlocked ? (
+                            <span className="text-emerald-600 font-extrabold flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded-xl">
+                              <Check className="w-3.5 h-3.5 stroke-[3]" /> Déverrouillé
+                            </span>
+                          ) : (
+                            <span className="text-slate-500 font-extrabold flex items-center gap-1 bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-100">
+                              <Lock className="w-3.5 h-3.5" /> Verrouillé
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex justify-between items-center text-xs mt-3.5">
+                          <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Récompense XP</span>
+                          <span className="font-display font-black text-amber-500 text-sm">
+                            +{selectedBadge.xpBonus} XP
+                          </span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => setSelectedBadge(null)}
+                        className="w-full bg-brand-blue hover:bg-brand-blue-light text-white font-extrabold text-xs uppercase tracking-wider py-3 rounded-xl shadow-xs transition-colors cursor-pointer mt-2"
+                      >
+                        Fermer
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
 
           </div>
         )}

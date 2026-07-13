@@ -22,6 +22,12 @@ import LessonViewer from "./components/LessonViewer";
 import BlitzArena from "./components/BlitzArena";
 import ExamsView from "./components/ExamsView";
 import ProfileView from "./components/ProfileView";
+import RankingView from "./components/RankingView";
+import LaLettre from "./components/LaLettre";
+import LaTraduction from "./components/LaTraduction";
+import LaDebat from "./components/LaDebat";
+import LaOral from "./components/LaOral";
+import MesCours from "./components/MesCours";
 
 export default function App() {
   const [currentView, setCurrentView] = useState<string>("landing");
@@ -42,7 +48,7 @@ export default function App() {
     <div className="min-h-screen bg-[#fcfcfd] flex flex-col font-sans selection:bg-brand-blue selection:text-white">
       
       {/* Navigation Header */}
-      {currentView !== "onboarding" && currentView !== "dashboard" && currentView !== "parcours" && currentView !== "lesson-viewer" && currentView !== "blitz" && currentView !== "exams" && currentView !== "profile" && (
+      {currentView !== "onboarding" && currentView !== "dashboard" && currentView !== "parcours" && currentView !== "lesson-viewer" && currentView !== "mes-cours" && currentView !== "blitz" && currentView !== "exams" && currentView !== "profile" && currentView !== "ranking" && currentView !== "la-lettre" && currentView !== "la-traduction" && currentView !== "la-debat" && currentView !== "la-oral" && (
         <Header 
           currentView={currentView} 
           setCurrentView={setCurrentView} 
@@ -224,10 +230,87 @@ export default function App() {
             />
           </div>
         )}
+
+        {currentView === "ranking" && (
+          <div className="w-full animate-fade-in">
+            <RankingView 
+              userXP={userXP} 
+              userStreak={userStreak} 
+              setCurrentView={setCurrentView}
+              isPremium={isPremium}
+              userFullName={registeredName}
+            />
+          </div>
+        )}
+
+        {currentView === "la-lettre" && (
+          <div className="w-full animate-fade-in">
+            <LaLettre 
+              userXP={userXP} 
+              userStreak={userStreak} 
+              setCurrentView={setCurrentView}
+              onGainXP={handleGainXP}
+              isPremium={isPremium}
+              userFullName={registeredName}
+            />
+          </div>
+        )}
+
+        {currentView === "la-traduction" && (
+          <div className="w-full animate-fade-in">
+            <LaTraduction 
+              userXP={userXP} 
+              userStreak={userStreak} 
+              setCurrentView={setCurrentView}
+              onGainXP={handleGainXP}
+              isPremium={isPremium}
+              userFullName={registeredName}
+            />
+          </div>
+        )}
+
+        {currentView === "la-debat" && (
+          <div className="w-full animate-fade-in">
+            <LaDebat 
+              userXP={userXP} 
+              userStreak={userStreak} 
+              setCurrentView={setCurrentView}
+              onGainXP={handleGainXP}
+              isPremium={isPremium}
+              userFullName={registeredName}
+            />
+          </div>
+        )}
+
+        {currentView === "la-oral" && (
+          <div className="w-full animate-fade-in">
+            <LaOral 
+              userXP={userXP} 
+              userStreak={userStreak} 
+              setCurrentView={setCurrentView}
+              onGainXP={handleGainXP}
+              isPremium={isPremium}
+              userFullName={registeredName}
+            />
+          </div>
+        )}
+
+        {currentView === "mes-cours" && (
+          <div className="w-full animate-fade-in">
+            <MesCours 
+              userXP={userXP} 
+              userStreak={userStreak} 
+              setCurrentView={setCurrentView}
+              onGainXP={handleGainXP}
+              isPremium={isPremium}
+              userFullName={registeredName}
+            />
+          </div>
+        )}
       </main>
 
       {/* Persistent Beautiful Footer */}
-      {currentView !== "signup" && currentView !== "login" && currentView !== "onboarding" && currentView !== "plan-selection" && currentView !== "parcours" && currentView !== "lesson-viewer" && currentView !== "dashboard" && currentView !== "blitz" && currentView !== "exams" && currentView !== "profile" && (
+      {currentView !== "signup" && currentView !== "login" && currentView !== "onboarding" && currentView !== "plan-selection" && currentView !== "parcours" && currentView !== "lesson-viewer" && currentView !== "mes-cours" && currentView !== "dashboard" && currentView !== "blitz" && currentView !== "exams" && currentView !== "profile" && currentView !== "ranking" && currentView !== "la-lettre" && currentView !== "la-traduction" && currentView !== "la-debat" && currentView !== "la-oral" && (
         <Footer 
           setCurrentView={setCurrentView} 
           openSignupModal={() => setCurrentView("signup")} 

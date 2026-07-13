@@ -86,6 +86,30 @@ export default function Header({ currentView, setCurrentView, openSignupModal }:
           </button>
 
           <button
+            id="nav-mes-cours"
+            onClick={() => handleNavClick("mes-cours")}
+            className={`px-2.5 py-1.5 xl:px-3 xl:py-2 rounded-lg transition-all ${
+              currentView === "mes-cours"
+                ? "bg-slate-50 text-brand-blue font-bold"
+                : "hover:bg-slate-50 hover:text-brand-blue"
+            }`}
+          >
+            Mes Cours
+          </button>
+
+          <button
+            id="nav-ranking"
+            onClick={() => handleNavClick("ranking")}
+            className={`px-2.5 py-1.5 xl:px-3 xl:py-2 rounded-lg transition-all ${
+              currentView === "ranking"
+                ? "bg-slate-50 text-brand-blue font-bold"
+                : "hover:bg-slate-50 hover:text-brand-blue"
+            }`}
+          >
+            Classement
+          </button>
+
+          <button
             id="nav-quiz"
             onClick={() => handleNavClick("quiz")}
             className={`px-2.5 py-1.5 xl:px-3 xl:py-2 rounded-lg transition-all ${
@@ -218,6 +242,28 @@ export default function Header({ currentView, setCurrentView, openSignupModal }:
             }`}
           >
             Mon Parcours
+          </button>
+
+          <button
+            onClick={() => handleNavClick("mes-cours")}
+            className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              currentView === "mes-cours"
+                ? "bg-brand-blue/5 text-brand-blue"
+                : "text-slate-600 hover:bg-slate-50 hover:text-brand-blue"
+            }`}
+          >
+            Mes Cours
+          </button>
+
+          <button
+            onClick={() => handleNavClick("ranking")}
+            className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              currentView === "ranking"
+                ? "bg-brand-blue/5 text-brand-blue"
+                : "text-slate-600 hover:bg-slate-50 hover:text-brand-blue"
+            }`}
+          >
+            Classement
           </button>
 
           <button
