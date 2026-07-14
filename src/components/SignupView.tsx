@@ -7,8 +7,13 @@ import React, { useState } from "react";
 import { 
   GraduationCap, ArrowRight, Eye, EyeOff, Sparkles, Compass, 
   MapPin, BookOpen, Target, Check, Trophy, Heart, Shield, Flame,
-  Mail, Lightbulb
+  Mail, Lightbulb, ChevronDown
 } from "lucide-react";
+import NigeriaFlag from '../assets/images/images1.jpg';
+import GhanaFlag from '../assets/images/Ghana.jpg';
+import SierraLeoneFlag from '../assets/images/Sierra Leone.jpg';
+import KenyaFlag from '../assets/images/kenya.jpg';
+import LiberiaFlag from '../assets/images/liberia.jpg';
 
 interface SignupViewProps {
   setCurrentView: (view: string) => void;
@@ -16,14 +21,24 @@ interface SignupViewProps {
   initialMode?: "signup" | "login";
 }
 
+const countries = [
+  { value: "Nigeria", label: "Nigeria", flag: NigeriaFlag },
+  { value: "Ghana", label: "Ghana", flag: GhanaFlag },
+  { value: "Sierra Leone", label: "Sierra Leone", flag: SierraLeoneFlag },
+  { value: "Liberia", label: "Liberia", flag: LiberiaFlag },
+  { value: "Kenya", label: "Kenya", flag: KenyaFlag },
+  { value: "Other", label: "Autre pays africain", flag: null },
+];
+
 export default function SignupView({ setCurrentView, onSignupSuccess, initialMode }: SignupViewProps) {
   const [mode, setMode] = useState<"signup" | "login">(initialMode || "signup");
   const [showPassword, setShowPassword] = useState(false);
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
-    country: "🇳🇬 Nigeria",
+    country: "Nigeria",
     school: "",
     classe: "SS3 — Passage du WAEC cette année",
     password: "",
@@ -253,6 +268,7 @@ export default function SignupView({ setCurrentView, onSignupSuccess, initialMod
   };
 
   const strength = getStrengthData();
+  const selectedCountry = countries.find(c => c.value === formData.country) || countries[0];
 
   return (
     <div className="w-full min-h-[calc(100vh-80px)] flex flex-col lg:flex-row">
@@ -340,19 +356,53 @@ export default function SignupView({ setCurrentView, onSignupSuccess, initialMod
                 <label className="text-xs font-bold uppercase text-slate-400 block mb-1.5 font-mono">
                   Pays
                 </label>
-                <select
-                  name="country"
-                  value={formData.country}
-                  onChange={handleInputChange}
-                  className="w-full bg-slate-50 border border-slate-100 focus:border-brand-blue focus:bg-white focus:outline-hidden rounded-xl px-4 py-3 text-xs md:text-sm font-semibold transition-all cursor-pointer"
-                >
-                  <option value="🇳🇬 Nigeria">🇳🇬 Nigeria</option>
-                  <option value="🇬🇭 Ghana">🇬🇭 Ghana</option>
-                  <option value="🇸🇱 Sierra Leone">🇸🇱 Sierra Leone</option>
-                  <option value="🇬🇲 Gambie">🇬🇲 Gambie</option>
-                  <option value="🇱🇷 Liberia">🇱🇷 Liberia</option>
-                  <option value="🌍 Autre pays africain">🌍 Autre pays africain</option>
-                </select>
+                {/* Custom Country Dropdown */}
+                <div className="relative">
+                  <button 
+                    type="button"
+                    onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                    className="w-full bg-slate-50 border border-slate-100 focus:border-brand-blue focus:bg-white focus:outline-hidden rounded-xl px-4 py-3 text-xs md:text-sm font-semibold transition-all flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      {selectedCountry.flag && (
+                        <img 
+                          src={selectedCountry.flag} 
+                          alt={`${selectedCountry.label} flag`} 
+                          className="w-6 h-4 object-cover rounded-sm"
+                        />
+                      )}
+                      <span>{selectedCountry.label}</span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                  </button>
+                  
+                  {isCountryDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                      {countries.map(country => (
+                        <button
+                          key={country.value}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, country: country.value }));
+                            setIsCountryDropdownOpen(false);
+                          }}
+                          className="w-full px-4 py-3 flex items-center gap-3 text-xs md:text-sm font-semibold hover:bg-slate-50 transition-all"
+                        >
+                          {country.flag ? (
+                            <img 
+                              src={country.flag} 
+                              alt={`${country.label} flag`} 
+                              className="w-6 h-4 object-cover rounded-sm"
+                            />
+                          ) : (
+                            <div className="w-6 h-4 bg-slate-200 rounded-sm flex items-center justify-center text-xs">🌍</div>
+                          )}
+                          <span>{country.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

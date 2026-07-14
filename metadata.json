@@ -1,6 +1,6 @@
 {
-  "name": "La Plume - French Learning Platform",
-  "description": "A premium French learning platform designed for African students to dominate exams like WAEC and JAMB. Features interactive quizzes, a mock dashboard with leaderboard, and AI-powered essay validation.",
+  "name": "La Plume",
+  "description": "An exam-focused French learning platform for students preparing for WAEC, JAMB, and school assessments.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }

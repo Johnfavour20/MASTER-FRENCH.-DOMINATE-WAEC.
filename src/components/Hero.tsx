@@ -38,7 +38,7 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
   // Countdown timer for cohort closes
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         if (prev.seconds > 0) {
           return { ...prev, seconds: prev.seconds - 1 };
         } else if (prev.minutes > 0) {
@@ -58,7 +58,7 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
   // Timer for interactive Blitz card
   useEffect(() => {
     const bTimer = setInterval(() => {
-      setBlitzTimer(prev => (prev > 1 ? prev - 1 : 45));
+      setBlitzTimer((prev) => (prev > 1 ? prev - 1 : 45));
     }, 1000);
     return () => clearInterval(bTimer);
   }, []);
@@ -70,7 +70,7 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
     
     // Reward Amara +50 XP if correct and hasn't claimed yet
     if (isCorrect && !hasClaimedXPDemo) {
-      setAmaraXP(prev => prev + 50);
+      setAmaraXP((prev) => prev + 50);
       setHasClaimedXPDemo(true);
     }
   };
@@ -306,7 +306,7 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
           {/* RHS Hero Image Block with Floating Badges - takes 5 columns */}
           <div className="lg:col-span-5 relative flex justify-center lg:justify-end py-8">
             
-            <div className="relative w-full max-w-[390px] md:max-w-[420px] lg:mr-8">
+            <div className="relative w-full max-w-[390px] md:max-w-[420px] lg:mr-4">
               
               {/* Backglow element */}
               <div className="absolute inset-4 bg-amber-400/20 rounded-3xl blur-2xl transform rotate-3 -z-10" />

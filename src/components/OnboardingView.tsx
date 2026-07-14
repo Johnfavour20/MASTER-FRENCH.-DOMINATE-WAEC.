@@ -9,6 +9,11 @@ import {
   Sparkles, ShieldCheck, HeartHandshake, HelpCircle, GraduationCap, X, ChevronDown, Camera
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import NigeriaFlag from '../assets/images/images1.jpg';
+import GhanaFlag from '../assets/images/Ghana.jpg';
+import SierraLeoneFlag from '../assets/images/Sierra Leone.jpg';
+import KenyaFlag from '../assets/images/kenya.jpg';
+import LiberiaFlag from '../assets/images/liberia.jpg';
 
 interface OnboardingViewProps {
   onSignupSuccess: (name: string) => void;
@@ -33,16 +38,25 @@ const SCHOOL_SUGGESTIONS = [
   "Lycée Béhanzin de Porto-Novo (Bénin)"
 ];
 
+const COUNTRY_OPTIONS = [
+  { value: "+234", label: "Nigeria", flag: NigeriaFlag },
+  { value: "+233", label: "Ghana", flag: GhanaFlag },
+  { value: "+232", label: "Sierra Leone", flag: SierraLeoneFlag },
+  { value: "+254", label: "Kenya", flag: KenyaFlag },
+  { value: "+231", label: "Liberia", flag: LiberiaFlag }
+];
+
 export default function OnboardingView({ onSignupSuccess, userEmail = "igboechejohn@gmail.com", userFullName = "Amara" }: OnboardingViewProps) {
   const [activeStep, setActiveStep] = useState<number>(1);
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   
   // Form State
   const [tosChecked, setTosChecked] = useState(false);
   const [aboutMe, setAboutMe] = useState({
     objective: "Réussir le Baccalauréat avec Mention",
     referral: "Réseaux sociaux (Facebook/Instagram/TikTok)",
-    whatsappPrefix: "+221",
+    whatsappPrefix: "+234",
     whatsappNumber: ""
   });
   const [selectedAvatar, setSelectedAvatar] = useState<string>("avatar1");
@@ -374,18 +388,60 @@ export default function OnboardingView({ onSignupSuccess, userEmail = "igboechej
                         Numéro de téléphone (WhatsApp)
                       </label>
                       <div className="flex gap-2">
-                        <select
-                          value={aboutMe.whatsappPrefix}
-                          onChange={(e) => setAboutMe(prev => ({ ...prev, whatsappPrefix: e.target.value }))}
-                          className="w-24 bg-slate-50 border border-slate-100 focus:border-brand-blue focus:bg-white focus:outline-hidden rounded-xl px-2 py-3 text-xs md:text-sm font-bold transition-all"
-                        >
-                          <option value="+221">🇸🇳 +221</option>
-                          <option value="+225">🇨🇮 +225</option>
-                          <option value="+234">🇳🇬 +234</option>
-                          <option value="+237">🇨🇲 +237</option>
-                          <option value="+229">🇧🇯 +229</option>
-                          <option value="+228">🇹🇬 +228</option>
-                        </select>
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                            className="w-32 bg-slate-50 border border-slate-100 focus:border-brand-blue focus:bg-white focus:outline-hidden rounded-xl px-2 py-3 text-xs md:text-sm font-bold transition-all flex items-center gap-2"
+                          >
+                            {(() => {
+                              const selectedCountry = COUNTRY_OPTIONS.find(c => c.value === aboutMe.whatsappPrefix);
+                              return (
+                                <>
+                                  {selectedCountry?.flag ? (
+                                    <img
+                                      src={selectedCountry.flag}
+                                      alt={`${selectedCountry.label} flag`}
+                                      className="w-6 h-4 object-cover rounded-sm"
+                                    />
+                                  ) : (
+                                    <span className="text-base">🌍</span>
+                                  )}
+                                  <span>{aboutMe.whatsappPrefix}</span>
+                                </>
+                              );
+                            })()}
+                            <ChevronDown className={`w-3 h-3 text-slate-400 transition-all ${showCountryDropdown ? "rotate-180" : ""}`} />
+                          </button>
+
+                          {showCountryDropdown && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto">
+                              {COUNTRY_OPTIONS.map(country => (
+                                <button
+                                  key={country.value}
+                                  type="button"
+                                  onClick={() => {
+                                    setAboutMe(prev => ({ ...prev, whatsappPrefix: country.value }));
+                                    setShowCountryDropdown(false);
+                                  }}
+                                  className="w-full px-3 py-2 flex items-center gap-2 text-xs md:text-sm font-semibold hover:bg-slate-50 transition-all"
+                                >
+                                  {country.flag ? (
+                                    <img
+                                      src={country.flag}
+                                      alt={`${country.label} flag`}
+                                      className="w-6 h-4 object-cover rounded-sm"
+                                    />
+                                  ) : (
+                                    <span className="text-base">🌍</span>
+                                  )}
+                                  <span>{country.label}</span>
+                                  <span className="ml-auto text-slate-400">{country.value}</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                         <input
                           required
                           type="tel"

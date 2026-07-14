@@ -62,8 +62,8 @@ export default function QuizWidget({ onGainXP, incrementStreak }: QuizWidgetProp
         {/* Card Header */}
         <div className="bg-slate-50 border-b border-slate-100 px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="bg-red-50 text-brand-coral border border-rose-100 text-[10px] md:text-xs font-mono font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1 animate-pulse">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-coral" />
+            <span className="bg-red-50 text-[var(--color-brand-coral)] border border-rose-100 text-[10px] md:text-xs font-mono font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1 animate-pulse">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-brand-coral)]" />
               10 SEC DÉFI
             </span>
           </div>
@@ -79,7 +79,7 @@ export default function QuizWidget({ onGainXP, incrementStreak }: QuizWidgetProp
               <Award className="w-8 h-8" />
             </div>
             
-            <h3 className="font-display text-2xl md:text-3xl font-extrabold text-brand-blue mb-2">
+            <h3 className="font-display text-2xl md:text-3xl font-extrabold text-[var(--color-brand-blue)] mb-2">
               Félicitations !
             </h3>
             <p className="text-slate-500 text-sm md:text-base max-w-md mb-6">
@@ -90,7 +90,7 @@ export default function QuizWidget({ onGainXP, incrementStreak }: QuizWidgetProp
             <div className="grid grid-cols-2 gap-4 w-full max-w-sm mb-8">
               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-center">
                 <span className="text-slate-400 text-xs font-semibold uppercase block mb-1">Score d'Examen</span>
-                <span className="text-2xl font-black text-brand-blue font-mono">
+                <span className="text-2xl font-black text-[var(--color-brand-blue)] font-mono">
                   {score} / {quizQuestions.length}
                 </span>
               </div>
@@ -104,7 +104,7 @@ export default function QuizWidget({ onGainXP, incrementStreak }: QuizWidgetProp
 
             <button
               onClick={handleRestart}
-              className="bg-brand-blue hover:bg-brand-blue-light text-white font-bold text-sm px-6 py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+              className="bg-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue-light)] text-white font-bold text-sm px-6 py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" /> Recommencer le défi
             </button>
@@ -114,7 +114,7 @@ export default function QuizWidget({ onGainXP, incrementStreak }: QuizWidgetProp
           <div className="p-6 md:p-8 animate-fade-in">
             
             {/* Instruction */}
-            <span className="text-xs font-bold uppercase tracking-widest text-brand-coral block mb-3 font-mono">
+            <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-brand-coral)] block mb-3 font-mono">
               {currentQuestion.instruction}
             </span>
 
@@ -141,7 +141,7 @@ export default function QuizWidget({ onGainXP, incrementStreak }: QuizWidgetProp
                   } else if (isSelected) {
                     // Selected incorrect option highlighted in red
                     btnStyle = "border-rose-200 bg-rose-50/30 text-rose-900";
-                    checkIcon = <X className="w-5 h-5 text-brand-coral shrink-0" />;
+                    checkIcon = <X className="w-5 h-5 text-[var(--color-brand-coral)] shrink-0" />;
                   } else {
                     // Other options faded
                     btnStyle = "border-slate-50 bg-slate-50/20 text-slate-400 cursor-not-allowed";
@@ -166,9 +166,9 @@ export default function QuizWidget({ onGainXP, incrementStreak }: QuizWidgetProp
             {isAnswered && (
               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-8 animate-slide-up">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className={`w-5 h-5 shrink-0 mt-0.5 ${selectedIdx === currentQuestion.correctIndex ? 'text-emerald-500' : 'text-brand-coral'}`} />
+                  <AlertCircle className={`w-5 h-5 shrink-0 mt-0.5 ${selectedIdx === currentQuestion.correctIndex ? 'text-emerald-500' : 'text-[var(--color-brand-coral)]'}`} />
                   <div>
-                    <h4 className="font-display font-extrabold text-sm text-brand-blue mb-1">
+                    <h4 className="font-display font-extrabold text-sm text-[var(--color-brand-blue)] mb-1">
                       {selectedIdx === currentQuestion.correctIndex ? "Excellent choix !" : "Réponse incorrecte"}
                     </h4>
                     <p className="text-xs md:text-sm text-slate-500 leading-relaxed">
@@ -198,7 +198,7 @@ export default function QuizWidget({ onGainXP, incrementStreak }: QuizWidgetProp
             {isAnswered && (
               <button
                 onClick={handleNext}
-                className="w-full bg-brand-blue hover:bg-brand-blue-light text-white font-bold text-sm px-6 py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0"
+                className="w-full bg-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue-light)] text-white font-bold text-sm px-6 py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 {currentIdx === quizQuestions.length - 1 ? "Voir les résultats" : "Question suivante"}
                 <ArrowRight className="w-4 h-4" />
