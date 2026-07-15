@@ -87,7 +87,7 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
   ).href;
 
   const registeredCountries = [
-    { logo: new URL("../assets/images/nigeria.svg", import.meta.url).href, flag: "🇳🇬", name: "Nigeria" },
+    { logo: new URL("../assets/images/images1.jpg", import.meta.url).href, flag: "🇳🇬", name: "Nigeria" },
     { logo: new URL("../assets/images/Ghana.jpg", import.meta.url).href, name: "Ghana" },
     { logo: new URL("../assets/images/kenya.jpg", import.meta.url).href, name: "Kenya" },
     { logo: new URL("../assets/images/Sierra Leone.jpg", import.meta.url).href, name: "Sierra Leone" },
@@ -125,19 +125,19 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
   // 8 Solution Points matching the screenshot exactly
   const solutions = [
     {
-      title: "90-Day Structured Bootcamp",
+      title: "30-Day Structured Bootcamp",
       desc: "A daily, step-by-step roadmap covering all WAEC French topics from grammar to letter-writing.",
       icon: Calendar,
       color: "bg-amber-50 text-amber-600 border-amber-100"
     },
     {
-      title: "Le Blitz — Timed Theory Challenges",
-      desc: "15 minutes of practice in Grammar, spelling, and Syntax under real exam pressure.",
+      title: "Le Blitz — Timed Theory, objective and oral Challenges",
+      desc: "practice Grammar, spelling, and Syntax under real exam pressure.",
       icon: Flame,
       color: "bg-amber-500 text-white border-amber-600"
     },
     {
-      title: "Weekly Proctored Mock Exams",
+      title: "Weekly Proctored practical projects",
       desc: "Simulate real exam tests with timed essays and oral presentation exams.",
       icon: ShieldAlert,
       color: "bg-blue-50 text-blue-600 border-blue-100"
@@ -256,7 +256,7 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
 
             {/* Subheading */}
             <p className="text-slate-500 text-base md:text-lg lg:text-xl max-w-2xl mb-10 leading-relaxed font-medium">
-              West Africa's first French-exam-bootcamp. 90-Days. One Cohort. Thousands of students across Anglophone Africa. One goal — excellence.
+              West Africa's first French-exam-bootcamp. 30-Days. One Cohort. Thousands of students across Anglophone Africa. One goal — excellence.
             </p>
 
             {/* Action Buttons */}
@@ -443,8 +443,8 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
       <section className="w-full max-w-6xl mx-auto px-4 py-20 md:py-28">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="bg-rose-50 text-brand-coral border border-rose-100 uppercase font-mono font-black tracking-wider text-[10px] px-3 py-1 rounded-full inline-block mb-3">THE REALITY</span>
-          <h2 className="font-display text-2xl md:text-4xl font-extrabold text-brand-blue tracking-tight leading-tight">
-            Most students fail WAEC French not because they're not smart — but because they never had the right preparation.
+          <h2 className="font-display text-2xl md:text-3xl font-extrabold text-brand-blue tracking-tight leading-tight">
+         Most students fail WAEC French not because they're not smart — but because they never had the right preparation
           </h2>
         </div>
 
@@ -510,7 +510,7 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
             Meet 'Le Blitz'. The ultimate mental drill.
           </h2>
           <p className="text-slate-500 text-sm md:text-base leading-relaxed mb-8 max-w-lg font-semibold">
-            Every day at 4 PM GMT, the platform locks. You have 15 minutes to solve 15 complex theory questions. No Google. No dictionaries. Just you and the clock.
+            Every day at your leisure, you have the chance to solve questions. No Google. No dictionaries. Just you and the clock. be it objective, theory or oral based questions
           </p>
           
           <ul className="space-y-3">
@@ -671,12 +671,12 @@ export default function Hero({ setCurrentView, openSignupModal, language = 'en',
               <span className="text-[10px] font-mono uppercase text-slate-400 font-black tracking-widest block mb-4">
                 CLASSEMENT RÉGIONAL EN DIRECT ~ COHORTE 1
               </span>
-              
+
               <div className="space-y-2">
                 {[
                   { rank: 1, name: "Kofi Mensah", country: "🇬🇭 Ghana", xp: 1420 },
                   { rank: 2, name: "Amina Bello", country: "🇳🇬 Nigeria", xp: 1310 },
-                  { rank: 3, name: "Kwame Appiah", country: "🇬🇭 Ghana", xp: 1240 },
+                  { rank: 3, name: "Kwame Appiah", country:"🇬🇭 Ghana", xp: 1240 },
                   { rank: 4, name: "Amara Temi", country: "🇳🇬 Nigeria", xp: amaraXP, isCurrentUser: true },
                   { rank: 5, name: "Femi Olatunji", country: "🇳🇬 Nigeria", xp: 1150 }
                 ].map((student, sidx) => {
